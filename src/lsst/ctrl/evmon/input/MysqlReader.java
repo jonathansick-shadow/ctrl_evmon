@@ -7,10 +7,14 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import lsst.ctrl.evmon.NormalizeMessageFilter;
 import lsst.ctrl.evmon.engine.MonitorMessage;
 
 
 public class MysqlReader implements MessageReader {
+	// TODO:  "NormalizeMessageFilter" should just be a MessageFilter object
+	// with subclasses to do various things to messages.
+	NormalizeMessageFilter filter = null;
 	static int defaultPort = 3306;
 
 	Connection conn = null;
@@ -65,11 +69,22 @@ public class MysqlReader implements MessageReader {
 			}
 		}
 		try {
+			String filterKey = null;
+			if (filter != null)
+				filterKey = filter.getKey();
+			
 			if (resultSet.next() == true) {
 
 				MysqlMessage message = new MysqlMessage();
 				for (int i = 0; i < columns; i++) {
-					message.put(labelNames[i], resultSet.getObject(i+1));
+					String name = labelNames[i];
+					if (filter == null) {
+						message.put(name, resultSet.getObject(i+1));
+					} else if (name.equals(filterKey)) {
+						filter.normalize(message, (String)resultSet.getObject(i+1));
+					} else {
+						message.put(name, resultSet.getObject(i+1));						
+					}
 				}
 				return message;
 			}
@@ -86,6 +101,10 @@ public class MysqlReader implements MessageReader {
 		return null;
 	}
 
+	public void setFilter(NormalizeMessageFilter filter) {
+		this.filter = filter;
+	}
+	
 	public void openConnection(String host, String database, String user,
 			String password, int port) {
 

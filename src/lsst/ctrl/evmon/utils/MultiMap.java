@@ -16,6 +16,16 @@ public class MultiMap {
 		map = new HashMap<String, List<Object>>();
 	}
 	
+	public void setMap(Map m) {
+		Set keys = m.keySet();
+		Iterator it = keys.iterator();
+		while (it.hasNext()) {
+			String key = (String)it.next();
+			put(key, m.get(key));
+		}
+		
+	}
+	
 	// The following series of "put" methods might seem redundant, but it is
 	// in place to enforce retaining the types of each of the objects so they
 	// can be serialized with type information later.

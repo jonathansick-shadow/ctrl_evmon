@@ -1,0 +1,1 @@
+setupRequired("jdk" >= 1.6.0+12)

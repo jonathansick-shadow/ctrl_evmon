@@ -11,7 +11,7 @@ public class Launch {
 	public static void main(String[] args) throws Exception {
 		
 
-		
+		// TODO: rewrite this launcher
 		Launch launch = new Launch();
 		int val = Integer.parseInt(args[0]);
 		
@@ -61,6 +61,26 @@ public class Launch {
 		case 16:
 			TestCase16 tc16 = new TestCase16();
 			job = tc16.createJob();
+			break;
+		case 17:
+			TestCase17 tc17 = new TestCase17();
+			job = tc17.createJob();
+			break;
+		case 18:
+			TestCase18 tc18 = new TestCase18();
+			job = tc18.createJob();
+			break;
+		case 19:
+			TestCase19 tc19 = new TestCase19();
+			job = tc19.createJob();
+			break;
+		case 20:
+			TestCase20 tc20 = new TestCase20();
+			job = tc20.createJob();
+			break;
+		case 21:
+			TestCase21 tc21 = new TestCase21();
+			job = tc21.createJob();
 			break;
 		}
 		

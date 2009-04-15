@@ -1,18 +1,19 @@
 package lsst.ctrl.evmon.input;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 import lsst.ctrl.evmon.engine.MonitorMessage;
+import lsst.ctrl.evmon.utils.MultiMap;
 
 import org.apache.activemq.command.ActiveMQMapMessage;
 
 
 public class JmsMessage extends MonitorMessage {
-	HashMap<String, Object> map = new HashMap<String, Object>();
+	MultiMap map = new MultiMap();
 
 	public JmsMessage(Message msg) {
 		ActiveMQMapMessage message = (ActiveMQMapMessage)msg;
@@ -25,7 +26,8 @@ public class JmsMessage extends MonitorMessage {
 			e.printStackTrace();
 		}
 		
-		map = new HashMap<String, Object>(content);
+		map = new MultiMap();
+		map.setMap(content);
 	}
 	
 	public Object get(String key) {
@@ -34,5 +36,9 @@ public class JmsMessage extends MonitorMessage {
 	
 	public void put(String key, Object value) {
 		map.put(key, value);
+	}
+	
+	public Set keySet() {
+		return map.keySet();
 	}
 }

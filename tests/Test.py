@@ -1,7 +1,5 @@
-from edu.uiuc.ncsa.monitor import *
-
-from edu.uiuc.ncsa.monitor.engine import MessageEvent;
-
+from lsst.ctrl.evmon import *
+from lsst.ctrl.evmon.engine import MessageEvent
 
 
 class MyLink(Link):

@@ -32,10 +32,18 @@ public class SetTask implements Task {
 					// look up a message object
 					String[] str = token.split(":");
 					if (str[0].equals("$msg")) {
-						val = (String) (msg.get(str[1])).toString();
+						Object obj = msg.get(str[1]);
+						if (obj == null)
+							val = null;
+						else
+							val = obj.toString();
 					} else {
 						MonitorMessage mm = (MonitorMessage) es.get(str[0]);
-						val = (String) (mm.get(str[1])).toString();
+						Object obj = mm.get(str[1]);
+						if (obj == null)
+							val = null;
+						else
+							val = obj.toString();
 					}
 				} else {
 					val = (String) es.get(token);
@@ -47,10 +55,10 @@ public class SetTask implements Task {
 		// so we have to evaluate it;  if there's only one token, just store
 		// the result.
 		if (tokenCount > 1) {
-			System.out.println("Evaluate: \"" + eval + "\"");
+			// System.out.println("Evaluate: \"" + eval + "\"");
 			ArithmeticExpression expr = new ArithmeticExpression(eval);
 			BigDecimal val = expr.evaluate();
-			System.out.println("evaluated as = " + val);
+			// System.out.println("evaluated as = " + val);
 			es.put(result, val.toString());
 		} else {
 			es.put(result, eval);

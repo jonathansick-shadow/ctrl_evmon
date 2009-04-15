@@ -30,6 +30,10 @@ public class LogicalCompare implements LogicalExpression {
 			rightSide = Integer.toString(ce.getSpanIndex());
 		} else {
 			rightSide = lookup(es, msg, value.toString());
+			if (rightSide == null) {
+				System.err.println("LogicalCompare: Error: \""+value.toString()+"\" does not exist");
+				System.exit(100);
+			}
 		}
 
 		return relation.eval(leftSide, rightSide);
@@ -38,7 +42,11 @@ public class LogicalCompare implements LogicalExpression {
 	private String lookup(EventStore es, MonitorMessage msg, String token) {
 		if (token.startsWith("$msg:")) {
 			String[] str = token.split(":");
-			String val = (msg.get(str[1])).toString();
+			String val = null;
+			Object obj = msg.get(str[1]);
+			if (obj != null) {
+				val = obj.toString();
+			}
 			return val;
 		}
 		return es.lookup(token);

@@ -53,6 +53,8 @@ public class Condition implements Link {
 	}
 
 	public Span getSpan() {
+		if (span == null)
+			return null;
 		span.resolve();
 		return span;
 	}

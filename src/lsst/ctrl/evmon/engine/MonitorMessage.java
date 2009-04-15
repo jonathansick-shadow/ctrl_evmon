@@ -1,5 +1,7 @@
 package lsst.ctrl.evmon.engine;
 
+import java.util.Set;
+
 
 public abstract class MonitorMessage {
 	
@@ -7,4 +9,5 @@ public abstract class MonitorMessage {
 	
 	public abstract void put(String key, Object value);
 	
+	public abstract Set<String> keySet();
 }
