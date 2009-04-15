@@ -17,28 +17,31 @@ runId = sys.argv[1]
 
 chain = Chain()
 
-cond1 = LogicalCompare("$msg:log", Relation.EQUALS, "harness.pipeline.visit")
-cond3 = LogicalCompare("$msg:sliceid", Relation.EQUALS, "-1")
-cond4 = LogicalCompare("$msg:runid", Relation.EQUALS, runId)
-firstAnd = LogicalAnd(cond1, cond3)
-firstAnd.add(cond4)
+cond1 = LogicalCompare("$msg:log", Relation.EQUALS, "harness.slice.visit.stage.process")
+cond2 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "start")
+cond3 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
+firstAnd = LogicalAnd(cond1, cond2)
+firstAnd.add(cond3)
+
 firstCondition = Condition(firstAnd)
 chain.addLink(firstCondition)
 
 setTask1 = SetTask("$firstLoop", "$msg:loopnum")
 chain.addLink(setTask1)
 
-setTask2 = SetTask("$nextLoop", "$msg:loopnum+1")
-chain.addLink(setTask2)
-
-comp1 = LogicalCompare("$msg:log", Relation.EQUALS, "harness.pipeline.visit")
-comp2 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$nextloop")
-comp3 = LogicalCompare("$msg:hostid", Relation.EQUALS, "$msg[0]:hostid")        
+comp1 = LogicalCompare("$msg:log", Relation.EQUALS, "harness.slice.visit.stage.process")
+comp2 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end")
+comp3 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "$msg[0]:sliceId")
+comp4 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
+comp5 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$msg[0]:loopnum")
+comp6 = LogicalCompare("$msg:stageId", Relation.EQUALS, "$msg[0]:stageId")
 
 logicalAnd1 = LogicalAnd(comp1, comp2)
 logicalAnd1.add(comp3)
+logicalAnd1.add(comp4)
+logicalAnd1.add(comp5)
 
-cond2 = Condition(comp3)
+cond2 = Condition(logicalAnd1)
 chain.addLink(cond2)
 
 
