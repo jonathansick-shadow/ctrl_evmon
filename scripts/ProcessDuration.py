@@ -45,7 +45,7 @@ cond2 = Condition(logicalAnd1)
 chain.addLink(cond2)
 
 
-setTask3 = SetTask("$time", "$msg[1]:micros-$msg[0]:micros")
+setTask3 = SetTask("$time", "$msg[1]:nanos-$msg[0]:nanos")
 chain.addLink(setTask3)
 
 setTask4 = SetTask("$id","$msg:id")
