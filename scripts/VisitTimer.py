@@ -1,3 +1,5 @@
+import sys
+
 import lsst.ctrl.evmon.Chain as Chain
 import lsst.ctrl.evmon.Condition as Condition
 import lsst.ctrl.evmon.EventTask as EventTask
@@ -11,8 +13,7 @@ import lsst.ctrl.evmon.Template as Template
 import lsst.ctrl.evmon.input.MysqlReader as MysqlReader
 import lsst.ctrl.evmon.output.ConsoleWriter as ConsoleWriter
 
-runId = "SRP3505"
-query = "SELECT nanos, id, sliceid, runid, level, log, comment, custom, hostid from logger where runid='"+runId+"' and log='harness.pipeline.visit' order by nanos;"
+runId = sys.argv[1]
 
 chain = Chain()
 
@@ -58,11 +59,9 @@ outputWriter = ConsoleWriter()
 eventTask = EventTask(outputWriter, template)
 chain.addLink(eventTask)
 
-mysqlReader = MysqlReader("ds33.ncsa.uiuc.edu", "test_events", "srp", "LSSTdata")
-#mysqlReader.setFilter(new NormalizeMessageFilter("custom", "||", "~~"))
+reader = LsstEventReader("LSSTLogging", "lsst4.ncsa.uiuc.edu");
 
-mysqlReader.setSelectString(query)
-job = Job(mysqlReader, chain)
+job = Job(reader, chain)
 
 monitor = EventMonitor(job)
 monitor.runJobs()
