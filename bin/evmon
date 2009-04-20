@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 bbase=`which $0`
 echo $bbase
 ENVMON_DIR=`dirname $bbase`
