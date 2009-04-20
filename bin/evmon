@@ -2,5 +2,5 @@
 bbase=`which $0`
 echo $bbase
 ENVMON_DIR=`dirname $bbase`
-export JYTHON_CLASSPATH=$ENVMON_DIR/evmon.jar:$ACTIVEMQ_DIR/activemq-all-5.2.0.jar:$ENVMON_DIR/../lib/jars/mysql-connector-java-5.0.6-bin.jar
+export JYTHON_CLASSPATH=$ENVMON_DIR/../lib/evmon.jar:$ACTIVEMQ_DIR/activemq-all-5.2.0.jar:$ENVMON_DIR/../lib/mysql-connector-java-5.0.6-bin.jar
 jython -Dpython.path=$JYTHON_CLASSPATH $*

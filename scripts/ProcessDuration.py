@@ -79,7 +79,7 @@ chain.addLink(setTask5)
 #chain.addLink(eventTask)
 
 # write to database
-query = "INSERT INTO test_events.durations(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runId}, {$msg:LOG}, {$msg:sliceId}, {$duration}, {$msg:hostId}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
+query = "INSERT INTO test_events.durations(runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values({$msg:runId}, {$msg:LOG}, {$msg:sliceId}, {$duration}, {$msg:hostId}, {$firstLoop}, {$msg:pipeline}, {$startdate}, {$msg:stageId});"
 mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata")
 mysqlTask = MysqlTask(mysqlWriter, query)
 chain.addLink(mysqlTask)
