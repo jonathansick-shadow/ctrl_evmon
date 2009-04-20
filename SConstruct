@@ -4,6 +4,7 @@
 #
 import glob, os.path, re, sys
 import lsst.SConsUtils as scons
+import subprocess
 
 dependencies = []
 
@@ -38,9 +39,10 @@ classpath = [ os.path.join(os.environ['PWD'], "classes"),
               os.path.join(os.environ['ACTIVEMQ_DIR'],
                            "activemq-all-5.2.0.jar") ]
               
-prog_class_files = env.Java("classes", "src", JAVACLASSPATH=classpath, ENV=os.environ)
+env.Java("classes", "src", JAVACLASSPATH=classpath, ENV=os.environ)
 #env.Jar("lib/evmon.jar", "classes", ENV=os.environ)
-env.Jar("lib/evmon.jar", source = prog_class_files)
+
+subprocess.call("jar cvf lib/evmon.jar -C classes/ .", shell=True)
 
 scons.CleanTree(r"*~ core *.so *.os *.o *.class")
 
