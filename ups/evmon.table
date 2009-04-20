@@ -1,1 +1,3 @@
 setupRequired("jdk" >= 1.6.0+12)
+setupRequired("activemq" >= 5.2.0)
+setupRequired("jython" >= 2.2.1)
