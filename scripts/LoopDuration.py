@@ -10,14 +10,15 @@ import lsst.ctrl.evmon.NormalizeMessageFilter as NormalizeMessageFilter
 import lsst.ctrl.evmon.Relation as Relation
 import lsst.ctrl.evmon.SetTask as SetTask
 import lsst.ctrl.evmon.Template as Template
-import lsst.ctrl.evmon.input.MysqlReader as MysqlReader
+import lsst.ctrl.evmon.input.LsstEventReader as LsstEventReader
 import lsst.ctrl.evmon.output.ConsoleWriter as ConsoleWriter
+import lsst.ctrl.evmon.EventMonitor as EventMonitor
 
 runId = sys.argv[1]
 
 chain = Chain()
 
-cond1 = LogicalCompare("$msg:log", Relation.EQUALS, "harness.pipeline.visit")
+cond1 = LogicalCompare("$msg:LOG", Relation.EQUALS, "harness.pipeline.visit")
 cond3 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "-1")
 cond4 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
 firstAnd = LogicalAnd(cond1, cond3)
@@ -31,8 +32,8 @@ chain.addLink(setTask1)
 setTask2 = SetTask("$nextLoop", "$msg:loopnum+1")
 chain.addLink(setTask2)
 
-comp1 = LogicalCompare("$msg:log", Relation.EQUALS, "harness.pipeline.visit")
-comp2 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$nextloop")
+comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS, "harness.pipeline.visit")
+comp2 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$nextLoop")
 comp3 = LogicalCompare("$msg:hostId", Relation.EQUALS, "$msg[0]:hostId")
 
 logicalAnd1 = LogicalAnd(comp1, comp2)

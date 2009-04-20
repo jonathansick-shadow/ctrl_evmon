@@ -7,7 +7,7 @@ import lsst.ctrl.evmon.input.LsstEventReader as LsstEventReader
 import lsst.ctrl.evmon.output.MysqlWriter as MysqlWriter
 import lsst.ctrl.evmon.EventMonitor as EventMonitor
 
-query = "INSERT INTO test_events.logger(hostid, runid, sliceid, level, log, date, nanos, comment, custom, status) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS});";
+query = "INSERT INTO test_events.logger(hostid, runid, sliceid, level, log, date, nanos, comment, custom, status, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});";
 
 chain = Chain();
 
@@ -23,6 +23,7 @@ attSet.put("DATE");
 attSet.put("COMMENT");
 attSet.put("TIMESTAMP");
 attSet.put("STATUS");
+attSet.put("pipeline");
 				
 filterTask = ExclusionFilterTask("$custom", attSet);
 chain.addLink(filterTask);
