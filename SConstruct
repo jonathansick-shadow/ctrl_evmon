@@ -40,9 +40,7 @@ classpath = [ os.path.join(os.environ['PWD'], "classes"),
                            "activemq-all-5.2.0.jar") ]
               
 env.Java("classes", "src", JAVACLASSPATH=classpath, ENV=os.environ)
-#env.Jar("lib/evmon.jar", "classes", ENV=os.environ)
-
-subprocess.call("jar cvf lib/evmon.jar -C classes/ .", shell=True)
+env.Jar("lib/evmon.jar", "classes/lsst", ENV=os.environ, JARCHDIR="classes")
 
 scons.CleanTree(r"*~ core *.so *.os *.o *.class")
 
