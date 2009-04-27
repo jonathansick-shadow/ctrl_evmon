@@ -4,6 +4,8 @@ public enum Relation {
 	EQUALS {
 		boolean eval(String left, String right) {
 			// System.out.println("left = "+left+", right ="+right);
+			if (left == null)
+				return false;
 			return left.equals(right);
 		}
 	},

@@ -19,22 +19,32 @@ public class NormalizeMessageFilter {
 	}
 
 	public void normalize(MonitorMessage msg, String s) {
+//		System.out.println("Normalizing s = "+s);
 		String str = s;
 		int len = str.length();
 		while (str != null) {
-			//System.out.println("s = " + s);
+//			System.out.println("str = " + str);
 
-			int firstIndex = s.indexOf(delimitor);
-			String key = s.substring(0, firstIndex);
+			int firstIndex = str.indexOf(delimitor);
+			String key = str.substring(0, firstIndex);
 
-			int lastIndex = s.lastIndexOf(eos);
-			String value = s.substring(firstIndex + 2, lastIndex);
-
+			int lastIndex = str.lastIndexOf(eos);
+			String value = null;
+//			System.out.println("lastIndex = "+lastIndex);
+			if (lastIndex == -1) {
+				lastIndex = str.length()-1;
+				value = str.substring(firstIndex + 1);
+			} else {
+				value = str.substring(firstIndex + 1, lastIndex);
+			}
 			// System.out.println("key = " + key + ", value = " + value);
+			key = key.trim();
+			value = value.trim();
 			msg.put(key, value);
-			str = s.substring(lastIndex+2);
+			str = str.substring(lastIndex+1);
 			if (str.equals(""))
 				str = null;
+
 		}
 	}
 

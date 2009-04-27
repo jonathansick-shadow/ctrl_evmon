@@ -12,7 +12,7 @@ public class Launch {
 		
 
 		// TODO: rewrite this launcher
-		Launch launch = new Launch();
+		Launch launch = new Launch(); 
 		int val = Integer.parseInt(args[0]);
 		
 		Job job = null;
@@ -81,6 +81,22 @@ public class Launch {
 		case 21:
 			TestCase21 tc21 = new TestCase21();
 			job = tc21.createJob();
+			break;
+		case 22:
+			TestCase22 tc22 = new TestCase22();
+			job = tc22.createJob();
+			break;
+		case 23:
+			TestCase23 tc23 = new TestCase23();
+			job = tc23.createJob();
+			break;
+		case 24:
+			TestCase24 tc24 = new TestCase24();
+			job = tc24.createJob();
+			break;
+		case 25:
+			TestCase25 tc25 = new TestCase25();
+			job = tc25.createJob();
 			break;
 		}
 		

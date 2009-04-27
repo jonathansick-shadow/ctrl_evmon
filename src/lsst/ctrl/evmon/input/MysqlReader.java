@@ -27,6 +27,7 @@ public class MysqlReader implements MessageReader {
 	String[] labelNames = null;
 	
 	String query = null;
+	int count = 0;
 
 	public MysqlReader(String host, String database, String user,
 			String password) {
@@ -74,7 +75,8 @@ public class MysqlReader implements MessageReader {
 				filterKey = filter.getKey();
 			
 			if (resultSet.next() == true) {
-
+//			    System.out.println("count = "+count);
+//			    count++;
 				MysqlMessage message = new MysqlMessage();
 				for (int i = 0; i < columns; i++) {
 					String name = labelNames[i];

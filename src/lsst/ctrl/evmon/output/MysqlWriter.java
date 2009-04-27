@@ -71,7 +71,9 @@ public class MysqlWriter {
 			PreparedStatement prep = conn.prepareStatement(retVal.toString());
 			for (int i = 0; i < matchList.size(); i++)
 				prep.setString(i + 1, matchList.get(i));
+			// System.out.println(prep);
 			int count = prep.executeUpdate();
+
 			prep.close();
 		} catch (MysqlDataTruncation dt) {
 			try {

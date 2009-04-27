@@ -24,7 +24,7 @@ public class LsstMessage extends MonitorMessage {
 		String text = null;
 		try {
 			text = textMsg.getText();
-			// System.out.println(text);
+			System.out.println(text);
 			unmarshall(text);
 		} catch (Exception e) {
 			System.err.println(e);
