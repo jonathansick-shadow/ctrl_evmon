@@ -23,6 +23,8 @@ public class NormalizeMessageFilter {
 		String str = s;
 		int len = str.length();
 		while (str != null) {
+            if (str.equals(""))
+                break;
 //			System.out.println("str = " + str);
 
 			int firstIndex = str.indexOf(delimitor);
