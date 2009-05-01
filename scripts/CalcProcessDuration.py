@@ -26,10 +26,10 @@ usage = """script runId process  or script runId eventwait"""
 
 if sys.argv[2] == "process":
     logName = "harness.slice.visit.stage.process"
-    dbTableName = "durations_process_srp"
+    dbTableName = "durations_process"
 elif sys.argv[2] == "eventwait":
     logName = "harness.slice.visit.stage.handleEvents.eventwait"
-    dbTableName = "durations_eventwait_srp"
+    dbTableName = "durations_eventwait"
 else:
     print usage
     sys.exit(2)
