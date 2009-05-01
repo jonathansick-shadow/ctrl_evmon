@@ -21,10 +21,13 @@ runId = sys.argv[1]
 chain = Chain()
 
 cond1 = LogicalCompare("$msg:LOG", Relation.EQUALS, "harness.pipeline.visit")
-cond2 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "-1")
-#cond3 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
+cond2 = LogicalCompare("$msg:status", Relation.EQUALS, "start")
+cond3 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "-1")
+cond4 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
 firstAnd = LogicalAnd(cond1, cond2)
-#firstAnd.add(cond3)
+firstAnd.add(cond3)
+firstAnd.add(cond4)
+
 firstCondition = Condition(firstAnd)
 chain.addLink(firstCondition)
 
@@ -41,11 +44,13 @@ chain.addLink(setTask3)
 comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS, "harness.pipeline.visit")
 comp2 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$nextLoop")
 comp3 = LogicalCompare("$msg:hostId", Relation.EQUALS, "$msg[0]:hostId")
-#comp4 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
+comp4 = LogicalCompare("$msg:runId", Relation.EQUALS, runId)
+comp5 = LogicalCompare("$msg:status", Relation.EQUALS, "start")
 
 logicalAnd1 = LogicalAnd(comp1, comp2)
 logicalAnd1.add(comp3)
-#logicalAnd1.add(comp4)
+logicalAnd1.add(comp4)
+logicalAnd1.add(comp5)
 
 cond2 = Condition(logicalAnd1)
 chain.addLink(cond2)
@@ -58,7 +63,7 @@ chain.addLink(setTask5)
 
 template = Template()
 template.put("INFO", Template.STRING, "Results for time delta")
-#template.put("runId", Template.STRING, runId)
+template.put("runId", Template.STRING, runId)
 template.put("name", Template.STRING, "$msg[0]:LOG")
 template.put("sliceId", Template.STRING, "$msg[0]:sliceId")
 template.put("duration", Template.INT, "$duration")
@@ -72,8 +77,9 @@ outputWriter = ConsoleWriter()
 eventTask = EventTask(outputWriter, template)
 chain.addLink(eventTask)
 
+
 # write to database
-query = "INSERT INTO test_events.durations(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runId}, {$msg:LOG}, {$msg:sliceId}, {$duration}, {$msg:hostId}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
+query = "INSERT INTO test_events.durations_loop_srptest(runId, name, sliceId, duration, host, loopnum, pipeline, date) values({$msg:runId}, {$msg:LOG}, {$msg:sliceId}, {$duration}, {$msg:hostId}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
 mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata")
 mysqlTask = MysqlTask(mysqlWriter, query)
 chain.addLink(mysqlTask)
