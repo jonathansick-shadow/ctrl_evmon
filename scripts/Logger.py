@@ -7,11 +7,11 @@ import lsst.ctrl.evmon.input.LsstEventReader as LsstEventReader
 import lsst.ctrl.evmon.output.MysqlWriter as MysqlWriter
 import lsst.ctrl.evmon.EventMonitor as EventMonitor
 
-query = "INSERT INTO test_events.logger(hostid, runid, sliceid, level, log, date, nanos, comment, custom, status, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});"
+query = "INSERT INTO logs.logger(hostId, runId, sliceId, LEVEL, LOG, DATE, TIMESTAMP, COMMENT, custom, STATUS, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});"
 
 chain = Chain()
 
-mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata")
+mysqlWriter = MysqlWriter("lsst10", "logs", "rplante", "net.wadr")
 
 attSet = AttributeSet()
 attSet.put("hostId")

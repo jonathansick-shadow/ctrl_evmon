@@ -77,13 +77,13 @@ chain.addLink(eventTask)
 
 # write to database
 
-insertQuery = "INSERT INTO test_events.durations_loop(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
-mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata")
+insertQuery = "INSERT INTO logs.durations(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
+mysqlWriter = MysqlWriter("lsst10", "logs", "rplante", "net.wadr")
 mysqlTask = MysqlTask(mysqlWriter, insertQuery)
 chain.addLink(mysqlTask)
 
 
-mysqlReader = MysqlReader("ds33.ncsa.uiuc.edu", "test_events", "srp", "LSSTdata")
+mysqlReader = MysqlReader("lsst10", "logs", "rplante", "net.wadr")
 mysqlReader.setFilter(NormalizeMessageFilter("custom", "=", ";"))
 
 mysqlReader.setSelectString(query)

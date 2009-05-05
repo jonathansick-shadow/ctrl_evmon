@@ -1,3 +1,9 @@
+import re, os
+
+nodere = re.compile(r'(\w+)\s*:\s*{')
+parmre = re.compile(r'(\w+)\s*:\s*(\S+)')
+commre = re.compile(r'#.*')
+
 def readAuthInfo(host):
     """
     read the authentication data for connecting to a database server.
