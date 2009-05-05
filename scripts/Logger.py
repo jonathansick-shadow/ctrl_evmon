@@ -6,12 +6,19 @@ import lsst.ctrl.evmon.MysqlTask as MysqlTask
 import lsst.ctrl.evmon.input.LsstEventReader as LsstEventReader
 import lsst.ctrl.evmon.output.MysqlWriter as MysqlWriter
 import lsst.ctrl.evmon.EventMonitor as EventMonitor
+import lsst.ctrl.evmon.db as db
+import sys
+
+host = "lsst10"
+if len(sys.argv) > 1:
+    host = sys.argv[1]
+auth = db.readAuthInfo(host)
 
 query = "INSERT INTO logs.logger(hostId, runId, sliceId, LEVEL, LOG, DATE, TIMESTAMP, COMMENT, custom, STATUS, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});"
 
 chain = Chain()
 
-mysqlWriter = MysqlWriter("lsst10", "logs", "rplante", "net.wadr")
+mysqlWriter = MysqlWriter(auth['host'], "logs", auth['user'], auth['password'])
 
 attSet = AttributeSet()
 attSet.put("hostId")
