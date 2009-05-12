@@ -15,18 +15,22 @@ import lsst.ctrl.evmon.db as db
 import sys
 
 host = "lsst10.ncsa.uiuc.edu"
+port = "3306"
+
 if len(sys.argv) > 1:
     host = sys.argv[1]
+if len(sys.argv) > 2:
+    port = sys.argv[2]
 
 
 query = "INSERT INTO logs.logger(hostId, runId, sliceId, LEVEL, LOG, DATE, TIMESTAMP, COMMENT, custom, STATUS, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});"
 
 dbAuth = DbAuth.DbAuth()
 
-auth = dbAuth.readAuthInfo(host)
+auth = dbAuth.readAuthInfo(host,port)
 
 if auth == None:
-    print "Couldn't find matching entry for host="+host+" in db-auth.paf file"
+    print "Couldn't find matching entry for host="+host+", port="+port+" in db-auth.paf file"
     sys.exit(10)
 
 chain = Chain()
