@@ -1,3 +1,8 @@
+import os
+import sys
+from lsst.ctrl.evmon.auth import DbAuth
+
+
 import lsst.ctrl.evmon.Chain as Chain
 import lsst.ctrl.evmon.AttributeSet as AttributeSet
 import lsst.ctrl.evmon.ExclusionFilterTask as ExclusionFilterTask
@@ -9,16 +14,24 @@ import lsst.ctrl.evmon.EventMonitor as EventMonitor
 import lsst.ctrl.evmon.db as db
 import sys
 
-host = "lsst10"
+host = "lsst10.ncsa.uiuc.edu"
 if len(sys.argv) > 1:
     host = sys.argv[1]
-auth = db.readAuthInfo(host)
+
 
 query = "INSERT INTO logs.logger(hostId, runId, sliceId, LEVEL, LOG, DATE, TIMESTAMP, COMMENT, custom, STATUS, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});"
 
+dbAuth = DbAuth.DbAuth()
+
+auth = dbAuth.readAuthInfo(host)
+
+if auth == None:
+    print "Couldn't find matching entry for host="+host+" in db-auth.paf file"
+    sys.exit(10)
+
 chain = Chain()
 
-mysqlWriter = MysqlWriter(auth['host'], "logs", auth['user'], auth['password'])
+mysqlWriter = MysqlWriter(host, "logs", auth['user'], auth['password'])
 
 attSet = AttributeSet()
 attSet.put("hostId")
