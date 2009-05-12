@@ -15,13 +15,13 @@ class DbAuth:
                 return list
             list.append(node)
             
-    def getAuthInfoEntry(self, host, user):
+    def readAuthInfo(self, host):
         list = self.getAuthInfoList()
         cnt = len(list)
         
         for i in range(0,cnt):
             authInfo = self.getAuthInfo(i)
-            if (authInfo['host'] == host) and (authInfo['user'] == user):
+            if authInfo['host'] == host:
                 return authInfo
         return None
     
@@ -41,6 +41,15 @@ class DbAuth:
         for data in arr[index]:
             dict[data[0]] = data[1]
         return dict
+
+    def partition(self, s, sep):
+        # this version of jython doesn't have string.partition...
+        if s.find(sep) != -1:
+            x = s.split(sep,1)
+            ret = (x[0],sep,x[1])
+        else:
+            ret = (s,'','')
+        return ret
             
     def get(self, name):
         return self._get(self.node, name)
@@ -50,7 +59,8 @@ class DbAuth:
         node = list[0]
         #print "key is = ",key[0]," node is = ",node," node[0] is = ",node[0]
         if node[0] == key[0]:
-            n = name.partition('.')
+            
+            n = self.partition(name, '.')
             if n[1] == '':
                 return node[1]
             return self._get(node[1],n[2])
@@ -88,6 +98,5 @@ if __name__ == "__main__":
 
     p = DbAuth()
 
-    db = p.getDatabase()
-    authInfo = p.getAuthInfoEntry("lsst10.ncsa.uiuc.edu","srp")
+    authInfo = p.readAuthInfo("lsst10.ncsa.uiuc.edu")
     print authInfo
