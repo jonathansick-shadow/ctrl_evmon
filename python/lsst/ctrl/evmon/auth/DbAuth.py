@@ -15,13 +15,13 @@ class DbAuth:
                 return list
             list.append(node)
             
-    def readAuthInfo(self, host):
+    def readAuthInfo(self, host, port='3306'):
         list = self.getAuthInfoList()
         cnt = len(list)
         
         for i in range(0,cnt):
             authInfo = self.getAuthInfo(i)
-            if authInfo['host'] == host:
+            if (authInfo['host'] == host) and (authInfo['port'] == port):
                 return authInfo
         return None
     
