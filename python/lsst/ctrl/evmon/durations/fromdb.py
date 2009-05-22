@@ -42,10 +42,38 @@ def SliceBlockDuration(runid, logname, authinfo, destination="durations"):
     
 def PipelineBlockDuration(runid, logname, authinfo, destination="durations"):
 
-    select = "%s where runid='%s' and sliceid=-1 and log='%s' order by TIMESTAMP;" % (loggerselect, runid, logname)
+    select = "%s where runid='%s' and sliceId=-1 and log='%s' order by TIMESTAMP;" % (loggerselect, runid, logname)
     mysqlReader = DBReader(select, authinfo)
     chain = PipelineBlockDurationChain(runid, logname, authinfo, destination)
     return Job(mysqlReader, chain)
+
+def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo,
+                     blockName=None, destination="durations"):
+    """
+    calculate the duration of application level block.  This requires knowing
+    the comments for the starting message and the ending message.  
+    @param runid       the run identifier for the run to process
+    @param logname     the name of log that contains the start and stop
+                          messages
+    @param startComm   the log message comment to search for as the mark
+                          of the start of the block
+    @param endComm     the log message comment to search for as the mark
+                          of the end of the block
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @param blockName   a name to give to the block; if None, one is formed
+                          from the starting comment
+    @param destination the name of the table to write to (def: "durations")
+    @return Job   a Job to be added to a Monitor
+    """
+    select = "%s where runId='%s' and log='%s' order by TIMESTAMP;" % \
+             (loggerselect, runid, logname)
+
+    mysqlReader = DBReader(select, authinfo)
+    chain = AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
+                                  authinfo, blockName, destination)
+    return Job(mysqlReader, chain)    
+
 
 def ProcessDuration(runid, authinfo, destination="durations"):
     """
@@ -86,6 +114,36 @@ def StageDuration(runid, authinfo, destination="durations"):
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid, 'harness.pipeline.visit.stage',
+                                 authinfo, destination)
+
+def PreprocessDuration(runid, authinfo, destination="durations"):
+    """
+    calculate the time required to complete the preprocess function for
+    each stage within the master Pipeline process.  The data is read in
+    from the logs database.
+    @param runid       the run identifier for the run to process
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @param destination the name of the table to write to (def: "durations")
+    @return Job   a Job to be added to a Monitor
+    """
+    return PipelineBlockDuration(runid,
+                                 'harness.pipeline.visit.stage.preprocess',
+                                 authinfo, destination)
+
+def PostprocessDuration(runid, authinfo, destination="durations"):
+    """
+    calculate the time required to complete the preprocess function for
+    each stage within the master Pipeline process.  The data is read in
+    from the logs database.
+    @param runid       the run identifier for the run to process
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @param destination the name of the table to write to (def: "durations")
+    @return Job   a Job to be added to a Monitor
+    """
+    return PipelineBlockDuration(runid,
+                                 'harness.pipeline.visit.stage.postprocess',
                                  authinfo, destination)
 
 def LoopDuration(runid, authinfo, destination="durations"):

@@ -79,7 +79,7 @@ def SliceBlockDurationChain(runid, logname, authinfo, destination="durations"):
     chain.addLink(SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP"))
     
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runkId}",
+    insertValues = { "runid":    "{$msg:runId}",
                      "name":     "{$msg:LOG}",
                      "sliceid":  "{$msg:sliceId}",
                      "duration": "{$duration}", 
@@ -112,7 +112,7 @@ def PipelineBlockDurationChain(runid, logname, authinfo,
     chain.addLink(start)
 
     chain.addLink(SetTask("$loopnum", "$msg:loopnum"))
-    chain.addLink(SetTask("$startdate", "$msg:date"))
+    chain.addLink(SetTask("$startdate", "$msg:DATE"))
 
     # find the end of the trace block
     comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end");       
@@ -132,11 +132,11 @@ def PipelineBlockDurationChain(runid, logname, authinfo,
     chain.addLink(SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP"))
     
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runid}",
+    insertValues = { "runid":    "{$msg:runId}",
                      "name":     "{$msg:LOG}",
-                     "sliceid":  "{$msg:sliceid}",
+                     "sliceid":  "{$msg:sliceId}",
                      "duration": "{$duration}", 
-                     "hostid":   "{$msg:hostid}", 
+                     "hostid":   "{$msg:hostId}", 
                      "loopnum":  "{$loopnum}", 
                      "pipeline": "{$msg:pipeline}", 
                      "date":     "{$startdate}",
@@ -144,6 +144,86 @@ def PipelineBlockDurationChain(runid, logname, authinfo,
 
     chain.addLink(DBWriteTask(insertValues, authinfo, destination))
     return chain;
+
+def AppBlockDurationChain(runid, stageid, logname, startComm, endComm, 
+                          authinfo, blockName=None, destination="durations"):
+    """
+    calculate the duration of application level block.  This requires knowing
+    the comments for the starting message and the ending message.  
+    @param runid       the run identifier for the run to process
+    @param logname     the name of log that contains the start and stop
+                          messages
+    @param startComm   the log message comment to search for as the mark
+                          of the start of the block
+    @param endComm     the log message comment to search for as the mark
+                          of the end of the block
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @param blockName   a name to give to the block; if None, one is formed
+                          from the starting comment
+    @param destination the name of the table to write to (def: "durations")
+    @return Chain   a Chain to be added to a Job
+    """
+    if blockName is None:
+        blockName = re.sub(r'\s*[sS]tart(ed|ing)?\s*', '', startComm)
+        
+    chain = Chain()
+
+    # find the start of the process to get some metadata
+    comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS,
+                           'harness.slice.visit.stage.process')
+    comp2 = LogicalCompare("$msg:stageId", Relation.EQUALS, stageid)
+    chain.addLink(LogicalAnd(comp1, comp2))
+    chain.addLink(SetTask("$stagestart", "$msg:TIMESTAMP"))
+    
+    # find the start of the trace block
+    comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS, logname)
+    comp2 = LogicalCompare("$msg:COMMENT", Relation.EQUALS, startComm)
+    comp3 = LogicalCompare("$msg:runId", Relation.EQUALS, "$msg[0]:runId")
+    comp4 = LogicalCompare("$msg:pipeline", Relation.EQUALS,
+                           "$msg[0]:pipeline")
+    comp5 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "$msg[0]:sliceId")
+#    comp6 = LogicalCompare("$msg:TIMESTAMP", Relation.LESSTHAN,
+#                           "$stagestart+1000000000")
+    recmatch = LogicalAnd(comp1, comp2)
+    recmatch.add(comp3)
+    recmatch.add(comp4)
+    recmatch.add(comp5)
+#    recmatch.add(comp6)
+    chain.addLink(Condition(recmatch))
+
+    chain.addLink(SetTask("$startdate", "$msg:DATE"))
+
+    # find the end of the trace block
+    comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS, logname)
+    comp2 = LogicalCompare("$msg:COMMENT", Relation.EQUALS, endComm);       
+    comp3 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "$msg[0]:sliceId")
+    comp4 = LogicalCompare("$msg:runId", Relation.EQUALS, "$msg[0]:runId")
+    comp5 = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
+    
+    recmatch = LogicalAnd(comp1, comp2)
+    recmatch.add(comp3)
+    recmatch.add(comp4)
+    recmatch.add(comp5)
+    chain.addLink(Condition(recmatch))
+
+    chain.addLink(SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP"))
+    
+    # write to the durations table
+    insertValues = { "runid":    "{$msg:runId}",
+                     "name":     blockName,
+                     "sliceid":  "{$msg:sliceId}",
+                     "duration": "{$duration}", 
+                     "hostid":   "{$msg:hostId}", 
+                     "loopnum":  "{$msg[0]:loopnum}", 
+                     "pipeline": "{$msg:pipeline}", 
+                     "date":     "{$startdate}",
+                     "stageid":  "{$msg[0]:stageId}"  }
+
+    chain.addLink(DBWriteTask(insertValues, authinfo, destination))
+    return chain
+
+    
 
 def LoopDurationChain(runid, authinfo, destination="durations"):
     """
@@ -182,7 +262,7 @@ def LoopDurationChain(runid, authinfo, destination="durations"):
     recmatch.add(cond4)
     chain.addLink(Condition(recmatch));
 
-    chain.addLink(SetTask("$startdate", "$msg[0]:date"))
+    chain.addLink(SetTask("$startdate", "$msg[0]:DATE"))
     chain.addLink(SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP"))
 
     # write to the durations table
