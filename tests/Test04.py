@@ -1,7 +1,6 @@
-from edu.uiuc.ncsa.monitor import *
+from lsst.ctrl.evmon import *
 
-from edu.uiuc.ncsa.monitor.engine import MessageEvent
-from edu.uiuc.ncsa.monitor.engine import Template
+from lsst.ctrl.evmon.engine import MessageEvent
 
 chain = Chain()
 
@@ -14,7 +13,7 @@ template.put("info", Template.STRING, "Results for delta")
 template.put("delta", Template.INT, "$delta")
 chain.addLink(EventTask(output, template))
 
-reader = LsstEventReader("monitor", "localhost", 61616)
+reader = LsstEventReader("LSSTLogging", "lsst8.ncsa.uiuc.edu", 61616)
 job = Job(reader, chain)
 
 engine = Engine(job)

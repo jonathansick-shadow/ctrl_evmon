@@ -68,7 +68,12 @@ public class EventStore {
 				String first = str[0];
 				if (first.startsWith("$msg[")) {
 					MonitorMessage m = (MonitorMessage)get(str[0]);
-					val = m.get(str[1]).toString();
+					Object obj = m.get(str[1]);
+					if (obj == null) {
+						val = null;
+					} else {
+						val = m.get(str[1]).toString();
+					}
 				}
 /* old code that looked up the current message.				
 				else if (first.startsWith("$msg")){
@@ -78,7 +83,10 @@ public class EventStore {
 */
 			} else {
 				Object obj = get(token);
-				val = obj.toString();
+				if (obj == null) {
+					val = null;
+				} else
+					val = obj.toString();
 			}
 		} else
 			val = token;

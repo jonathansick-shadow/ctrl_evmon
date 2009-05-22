@@ -3,6 +3,9 @@ package lsst.ctrl.evmon;
 public enum Relation {
 	EQUALS {
 		boolean eval(String left, String right) {
+			// System.out.println("left = "+left+", right ="+right);
+			if (left == null)
+				return false;
 			return left.equals(right);
 		}
 	},
@@ -51,9 +54,13 @@ public enum Relation {
 	},
 	STARTS_WITH {
 		boolean eval(String left, String right) {
-			if (left.startsWith(right))
-				return true;
-			return false;
+			try {
+				if (left.startsWith(right))
+					return true;
+				return false;
+			} catch (NullPointerException npe) {
+				return false;
+			}
 		}
 	},
 	ENDS_WITH {

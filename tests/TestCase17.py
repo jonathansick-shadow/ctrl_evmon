@@ -1,7 +1,7 @@
-from edu.uiuc.ncsa.monitor import *
+from lsst.ctrl.evmon import *
 
-from edu.uiuc.ncsa.monitor.engine import Template;
-from edu.uiuc.ncsa.monitor.engine import Engine;
+from lsst.ctrl.evmon.engine import Template
+from lsst.ctrl.evmon.engine import Engine
 
 chain = Chain()
 

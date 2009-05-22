@@ -3,7 +3,6 @@ package lsst.ctrl.evmon.output;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,9 +10,14 @@ import java.util.regex.Pattern;
 import lsst.ctrl.evmon.engine.EventStore;
 import lsst.ctrl.evmon.engine.MonitorMessage;
 
+import com.mysql.jdbc.MysqlDataTruncation;
+
 
 public class MysqlWriter {
 	static int defaultPort = 3306;
+	static String MORE = "<more>";
+	static int STRING_LIMIT = 1024;
+	static int TRUNCATED_SIZE = STRING_LIMIT-10;
 
 	Connection conn = null;
 
@@ -63,16 +67,34 @@ public class MysqlWriter {
 			retVal.append(query, index, length);
 		// System.out.println("retVal ="+retVal);
 		try {
-//			System.out.println("statement string resolved to: "+retVal);
+			// System.out.println("statement string resolved to: "+retVal);
 			PreparedStatement prep = conn.prepareStatement(retVal.toString());
 			for (int i = 0; i < matchList.size(); i++)
 				prep.setString(i + 1, matchList.get(i));
+			// System.out.println(prep);
+			int count = prep.executeUpdate();
+
+			prep.close();
+		} catch (MysqlDataTruncation dt) {
+			try {
+			System.err.println("Truncating statement...");
+			PreparedStatement prep = conn.prepareStatement(retVal.toString());
+			for (int i = 0; i < matchList.size(); i++) {
+				String insertionString = matchList.get(i);
+				if (insertionString.length() > STRING_LIMIT) {
+					insertionString = insertionString.substring(0, TRUNCATED_SIZE) +MORE;
+				}
+				prep.setString(i + 1, insertionString);
+			}
 			int count = prep.executeUpdate();
 			prep.close();
+			} catch (Exception e) {
+				System.err.println("2) mysqlwriter send: " + e);
+				System.err.println("2) statement was: "+retVal);				
+			}
 		} catch (Exception e) {
 			System.err.println("mysqlwriter send: " + e);
 			System.err.println("statement was: "+retVal);
-			System.exit(100);
 		}
 	}
 
@@ -82,7 +104,10 @@ public class MysqlWriter {
 		s = s.trim();
 		if (s.startsWith("$msg:")) {
 			String[] str = s.split(":");
-			String val = (msg.get(str[1])).toString();
+			Object obj = msg.get(str[1]);
+			if (obj == null)
+				return null;
+			String val = obj.toString();
 			return val;
 		}
 		String val = es.lookup(s);

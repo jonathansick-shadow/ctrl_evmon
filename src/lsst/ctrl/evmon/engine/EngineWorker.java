@@ -83,13 +83,11 @@ public class EngineWorker extends Thread {
 
 				// This is a condition, so evaluate it.
 				if (ce.evaluate(msg) != true) {
-					System.out.println(this + ": no match on: "
-							+ ce.getCurrentLink().toString());
+					// System.out.println(this + ": no match on: "+ ce.getCurrentLink().toString());
 					continue;
 				}
 
-				System.out.println(this + ": condition returned true: "
-						+ ce.getCurrentLink().toString());
+				//System.out.println(this + ": condition returned true: "+ ce.getCurrentLink().toString());
 
 				// if this is the first element, we have to be prepared
 				// for the next incoming message, so add it to the list

@@ -14,7 +14,7 @@ public class TestCase15 {
 	public Job createJob() {
 
 //INSERT INTO events.triggerMatchMopsPredsEvent(DATE, MICROS, VISITID) values(${date}, ${micros}, ${visitid})
-		String query = "INSERT INTO events.logger(hostid, runid, sliceid, level, log, date, micros, node) values(\"{$msg:hostid}\", \"{$msg:runid}\", {$msg:sliceid}, {$msg:level}, \"{$msg:log}\", \"{$msg:date}, {$msg:node});";
+		String query = "INSERT INTO events.logger(hostid, runid, sliceid, level, log, date, comment, micros) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:COMMENT}, {$msg:TIMESTAMP});";
 
 		Chain chain = new Chain();
 
