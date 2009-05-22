@@ -4,18 +4,31 @@ import java.util.Vector;
 
 import lsst.ctrl.evmon.engine.EngineWorker;
 
+/**
+ * Class EventMonitor is the object that administers the execution of all Jobs given to it.
+ * @author srp
+ */
 
 public class EventMonitor {
 	Vector<Job> jobs = new Vector<Job>();
 	
+    /**
+     * Class constructor which initializes the EventMonitor with a Job
+     */
 	public EventMonitor(Job job) {
 		jobs.add(job);
 	}
 	
+    /**
+     * Class constructor which appends a job to the EventMonitor's job list
+     */
 	public void addJob(Job job) {
 		jobs.add(job);
 	}
 	
+    /**
+     * Execute the Jobs on jobs list
+     */
 	public void runJobs() {
 		for (int i = 0; i < jobs.size(); i++) {
 			EngineWorker ew = new EngineWorker(jobs.get(i));

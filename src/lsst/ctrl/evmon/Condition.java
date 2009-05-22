@@ -21,7 +21,7 @@ public class Condition implements Link {
 	long timeout = 0;
 
 	/**
-	 * Initializes a <code>Condition</code> object with the arguments for 
+	 * Class constructor which initializes a <code>Condition</code> object with the arguments for 
 	 * a LogicalCompare.
 	 * 
 	 * @param key the variable to compare
@@ -33,25 +33,43 @@ public class Condition implements Link {
 	}
 	
 	/**
-	 * Initializes a <code>Condition</code> object with a LogicalExpression,
-	 * along with a Span.
+	 * Class constructor which initializes a <code>Condition</code> object with a LogicalExpression.
 	 * 
 	 * @param e the LogicalExpression to evaluate.
 	 */
 	public Condition(LogicalExpression e) {
-		this.expression = e;
+		this(e,null);
 	}
 	
+	/**
+	 * Class constructor which initializes a <code>Condition</code> object with a LogicalExpression,
+	 * along with a Span.
+	 * 
+	 * @param e the LogicalExpression to evaluate.
+	 * @param s the span to use for indexing purposes.
+	 */
 	public Condition(LogicalExpression e, Span s) {
 		this.expression = e;
 		this.span = s;
 	}
 	
+    /**
+     * Sets an ExceptionTask and timeout for this Condition.  If this condition is not
+     * met within the specified timeout period, the ExceptionTask is executed, and the
+     * rest of the Links on this Chain will not be executed.
+     * 
+     * @param task the ExceptionTask to execute on timeout
+     * @param timeout the number of milliseconds to wait.
+     */
 	public void setException(ExceptionTask task, long timeout) {
 		this.exceptionTask = task;
 		this.timeout = timeout;
 	}
 
+    /**
+     * Returns the Span associated with this Condition (if any).  If a Span does exist,
+     * it is resolved, and returned.
+     */
 	public Span getSpan() {
 		if (span == null)
 			return null;
@@ -64,14 +82,30 @@ public class Condition implements Link {
 		return exceptionTask.clone();
 	}
 
+    /**
+     * Accessor method that returns the timeout associated with this Condition
+     * @return timeout value in milliseconds
+     */
 	public long getTimeout() {
 		return timeout;
 	}
 
+    /**
+     * Returns boolean result of evaluating the constructor's LogicalExpression, based on values in the ChainEnvironment and
+     * MonitorMessage.
+     *
+     * @param ce The ChainEnvironment to use to evaluate the LogicalExpression
+     * @param msg The message that is currently being evaluated
+     * @return returns true if expression evaluates to true, false otherwise
+     */
 	public boolean evaluate(ChainEnvironment ce, MonitorMessage msg) {
 		return expression.evaluate(ce, msg);
 	}
 
+    /**
+     * Returns a string representation of this object's LogicalExpression, in unevaluated form.
+     * @return a string representation of this object's Logical Expression
+     */
 	public String toString() {
 		return expression.toString();
 	}
