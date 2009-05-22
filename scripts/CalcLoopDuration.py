@@ -1,4 +1,6 @@
+import os
 import sys
+from lsst.ctrl.evmon.auth import DbAuth
 
 import lsst.ctrl.evmon.Chain as Chain
 import lsst.ctrl.evmon.Condition as Condition
@@ -18,7 +20,17 @@ import lsst.ctrl.evmon.output.MysqlWriter as MysqlWriter
 import lsst.ctrl.evmon.EventMonitor as EventMonitor
 
 runId = sys.argv[1]
-query = "SELECT date, nanos, id, sliceid, runid, level, log, comment, custom, hostid, status, pipeline from logger where runid='" + runId + "' and log='harness.pipeline.visit' order by nanos;"
+
+host = "lsst10.ncsa.uiuc.edu"
+
+dbAuth = DbAuth.DbAuth()
+auth = dbAuth.readAuthInfo(host)
+
+if auth == None:
+    print "Couldn't find matching entry for host="+host+" in db-auth.paf file"
+    sys.exit(10)
+
+query = "SELECT date, TIMESTAMP, id, sliceid, runid, level, log, comment, custom, hostid, status, pipeline from logger where runid='" + runId + "' and log='harness.pipeline.visit' order by TIMESTAMP;"
 
 chain = Chain()
 
@@ -56,7 +68,7 @@ chain.addLink(condi2)
 startDate = SetTask("$startdate", "$msg[0]:date")
 chain.addLink(startDate)
 
-setTask3 = SetTask("$duration", "$msg[1]:nanos-$msg[0]:nanos")
+setTask3 = SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP")
 chain.addLink(setTask3)
 
 setTask4 = SetTask("$id","$msg:id")
@@ -78,12 +90,13 @@ chain.addLink(eventTask)
 # write to database
 
 insertQuery = "INSERT INTO logs.durations(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
-mysqlWriter = MysqlWriter("lsst10", "logs", "rplante", "net.wadr")
+
+mysqlWriter = MysqlWriter(auth['host'], "logs", auth['user'], auth['password'])
 mysqlTask = MysqlTask(mysqlWriter, insertQuery)
 chain.addLink(mysqlTask)
 
 
-mysqlReader = MysqlReader("lsst10", "logs", "rplante", "net.wadr")
+mysqlReader = MysqlReader(auth['host'], "logs", auth['user'], auth['password'])
 mysqlReader.setFilter(NormalizeMessageFilter("custom", "=", ";"))
 
 mysqlReader.setSelectString(query)

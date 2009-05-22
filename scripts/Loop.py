@@ -1,6 +1,8 @@
+import os
 import sys
 import getopt
 
+import lsst.ctrl.evmon.auth.DbAuth as DbAuth
 import lsst.ctrl.evmon.Chain as Chain
 import lsst.ctrl.evmon.Condition as Condition
 import lsst.ctrl.evmon.EventTask as EventTask
@@ -23,9 +25,18 @@ class Loop:
 
     def __init__(self, runId):
         self.runId = runId
+        dbAuth = DbAuth.DbAuth()
+
+        host = "fester.ncsa.uiuc.edu"
+
+        self.auth = dbAuth.readAuthInfo(host)
+
+        if self.auth == None:
+            print "Couldn't find matching entry for host="+host+" in db-auth.paf file"
+            sys.exit(10)
+
 
     def getLoopDurationChain(self):
-        query = "SELECT date, nanos, id, sliceid, runid, level, log, comment, custom, hostid, status, pipeline from logger where runid='" + self.runId + "' and log='harness.pipeline.visit' order by nanos;"
         
         chain = Chain()
         
@@ -63,7 +74,7 @@ class Loop:
         startDate = SetTask("$startdate", "$msg[0]:date")
         chain.addLink(startDate)
         
-        setTask3 = SetTask("$duration", "$msg[1]:nanos-$msg[0]:nanos")
+        setTask3 = SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP")
         chain.addLink(setTask3)
         
         setTask4 = SetTask("$id","$msg:id")
@@ -71,8 +82,8 @@ class Loop:
         
         # write to database
         
-        insertQuery = "INSERT INTO test_events.durations_loop_srp(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
-        mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata")
+        insertQuery = "INSERT INTO durations(runid, name, sliceid, duration, host, loopnum, pipeline, date) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate});"
+        mysqlWriter = MysqlWriter(self.auth['host'], "logs", self.auth['user'], self.auth['password'])
         mysqlTask = MysqlTask(mysqlWriter, insertQuery)
         chain.addLink(mysqlTask)
         

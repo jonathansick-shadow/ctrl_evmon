@@ -1,3 +1,7 @@
+import os
+
+from lsst.ctrl.evmon.auth import DbAuth
+
 import lsst.ctrl.evmon.Chain as Chain
 import lsst.ctrl.evmon.Condition as Condition
 import lsst.ctrl.evmon.EventTask as EventTask
@@ -20,21 +24,29 @@ class StopEnd:
 
     def __init__(self, runId):
         self.runId = runId
+        host = "fester.ncsa.uiuc.edu"
+
+        dbAuth = DbAuth.DbAuth()
+
+        self.auth = dbAuth.readAuthInfo(host)
+
+        if self.auth == None:
+            print "Couldn't find matching entry for host="+host+" in db-auth.paf file"
+            sys.exit(10)
+
 
     def getProcessDurationChain(self):
         logName = "harness.slice.visit.stage.process"
-        dbTableName = "durations_process_srp"
+        dbTableName = "durations"
         return self.getChain(logName, dbTableName)
 
 
     def getEventWaitDurationChain(self):
         logName = "harness.slice.visit.stage.handleEvents.eventwait"
-        dbTableName = "durations_eventwait_srp"
+        dbTableName = "durations"
         return self.getChain(logName, dbTableName)
 
     def getChain(self, logName, dbTableName):
-        query = "SELECT date, nanos, id, sliceid, runid, level, log, custom, hostid, status, pipeline from logger where runid='" + self.runId + "' and log='"+logName+"' order by nanos;"
-        
         
         chain = Chain()
         
@@ -64,16 +76,16 @@ class StopEnd:
         cond2 = Condition(logicalAnd1)
         chain.addLink(cond2)
         
-        setTask4 = SetTask("$duration", "$msg[1]:nanos-$msg[0]:nanos")
+        setTask4 = SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP")
         chain.addLink(setTask4)
         
         setTask5 = SetTask("$id", "$msg:id")
         chain.addLink(setTask5)
         
         # write to database
-        insertQuery = "INSERT INTO test_events."+dbTableName+"(runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate}, {$msg:stageId});"
+        insertQuery = "INSERT INTO "+dbTableName+"(runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values({$msg:runid}, {$msg:log}, {$msg:sliceid}, {$duration}, {$msg:hostid}, {$firstLoop}, {$msg:pipeline}, {$startdate}, {$msg:stageId});"
         
-        mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata");        
+        mysqlWriter = MysqlWriter(self.auth['host'], "logs", self.auth['user'], self.auth['password']);        
         mysqlTask = MysqlTask(mysqlWriter, insertQuery)
         chain.addLink(mysqlTask)
 

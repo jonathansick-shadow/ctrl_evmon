@@ -1,4 +1,6 @@
+import os
 import sys
+from lsst.ctrl.evmon.auth import DbAuth
 
 import lsst.ctrl.evmon.Chain as Chain
 import lsst.ctrl.evmon.Condition as Condition
@@ -15,6 +17,16 @@ import lsst.ctrl.evmon.input.LsstEventReader as LsstEventReader
 import lsst.ctrl.evmon.output.ConsoleWriter as ConsoleWriter
 import lsst.ctrl.evmon.output.MysqlWriter as MysqlWriter
 import lsst.ctrl.evmon.EventMonitor as EventMonitor
+
+host = "ds33.ncsa.uiuc.edu"
+
+dbAuth = DbAuth.DbAuth()
+
+auth = dbAuth.readAuthInfo(host)
+
+if auth == None:
+    print "Couldn't find matching entry for host="+host+" in db-auth.paf file"
+    sys.exit(10)
 
 runId = sys.argv[1]
 
@@ -80,7 +92,7 @@ chain.addLink(setTask5)
 
 # write to database
 query = "INSERT INTO test_events.durations(runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values({$msg:runId}, {$msg:LOG}, {$msg:sliceId}, {$duration}, {$msg:hostId}, {$firstLoop}, {$msg:pipeline}, {$startdate}, {$msg:stageId});"
-mysqlWriter = MysqlWriter("ds33", "test_events", "srp", "LSSTdata")
+mysqlWriter = MysqlWriter(host, "test_events", auth['user'], auth['password'])
 mysqlTask = MysqlTask(mysqlWriter, query)
 chain.addLink(mysqlTask)
 
