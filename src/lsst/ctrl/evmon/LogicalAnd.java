@@ -13,6 +13,8 @@ public class LogicalAnd extends Vector<LogicalExpression> implements LogicalExpr
 	
     /**
      * Class constructor LogicalAnd stores two LogicalExpressions for evaluation later.
+     * @param expr1 first LogicalExpression
+     * @param expr2 second LogicalExpression
      */
 	public LogicalAnd(LogicalExpression expr1, LogicalExpression expr2) {
 		add(expr1);
@@ -21,6 +23,8 @@ public class LogicalAnd extends Vector<LogicalExpression> implements LogicalExpr
   
 	/**
      * Evaluates all LogicalExpressions for this object
+     * @param ce ChainEnvironment to evaluate against
+     * @param msg current message to evaluate against
      * @return true, if all LogicalExpressions evaluate to true, otherwise returns false
      */
 	public boolean evaluate(ChainEnvironment ce, MonitorMessage msg) {

@@ -14,6 +14,7 @@ public class EventMonitor {
 	
     /**
      * Class constructor which initializes the EventMonitor with a Job
+     * @param job initial Job for the EventMonitor
      */
 	public EventMonitor(Job job) {
 		jobs.add(job);
@@ -21,13 +22,14 @@ public class EventMonitor {
 	
     /**
      * Class constructor which appends a job to the EventMonitor's job list
+     * @param job Job to add to the EventMonitor's list
      */
 	public void addJob(Job job) {
 		jobs.add(job);
 	}
 	
     /**
-     * Execute the Jobs on jobs list
+     * Execute the Jobs on jobs list.  This method does not return.
      */
 	public void runJobs() {
 		for (int i = 0; i < jobs.size(); i++) {

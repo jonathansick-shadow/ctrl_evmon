@@ -42,6 +42,7 @@ public class Chain {
 
     /**
      * Returns the length of this Chain
+     *
      * @return the length of this Chain
      */
 	public int size() {
