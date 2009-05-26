@@ -25,7 +25,7 @@ public class LogicalAnd extends Vector<LogicalExpression> implements LogicalExpr
      * Evaluates all LogicalExpressions for this object
      * @param ce ChainEnvironment to evaluate against
      * @param msg current message to evaluate against
-     * @return true, if all LogicalExpressions evaluate to true, otherwise returns false
+     * @return true if all LogicalExpressions evaluate to true, otherwise returns false
      */
 	public boolean evaluate(ChainEnvironment ce, MonitorMessage msg) {
 		int total = this.size();
