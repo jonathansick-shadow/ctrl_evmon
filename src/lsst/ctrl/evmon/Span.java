@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import lsst.ctrl.evmon.math.ArithmeticExpression;
 
 
+/**
+ * Class Span represents a group of numbers from a low to a high value
+ */
 public class Span {
 	private Object low;
 	private Object up;
@@ -15,6 +18,9 @@ public class Span {
 	
 	static public String INDEX = "$SpanIndex";
 
+    /**
+     * Class constructor Span stores a lower and an upper value.
+     */
 	public Span(Object lower, Object upper) {
 		this.low = lower;
 		this.up = upper;
@@ -22,6 +28,11 @@ public class Span {
 		resolved = false;
 	}
 	
+    /**
+     * This resolves the values of the lower and upper expressions, by evaluating
+     * them when this method is called.  Currently this only evaluates numbers and
+     * arithmetic expressions, and does not evaluate expressions with variables.
+     */
 	public void resolve() {
 		if (resolved)
 			return;

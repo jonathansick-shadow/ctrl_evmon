@@ -8,15 +8,33 @@ import lsst.ctrl.evmon.engine.MonitorMessage;
 import lsst.ctrl.evmon.math.ArithmeticExpression;
 
 
+/**
+ * Class SetTask assigns a value to a variable, which can be retrieved later by
+ * other Links in a Chain.
+ */
 public class SetTask implements Task {
 	String result;
 	String expression;
 
+    /**
+     * Class constructor SetTask stores the expression to be evaluated in result.
+     * This occurs when SetTask is encountered in the Chain by the EventMonitor.
+     */
 	public SetTask(String result, String expression) {
 		this.result = result;
 		this.expression = expression;
 	}
 
+    /**
+     * Executes the SetTask.  This evaluates the expression, looking up
+     * any values that need to be evaluated and preforming a simple math
+     * expression evaluation if specified.   The result is stored in a
+     * variable specified in the "result" string in the constructor, so it can
+     * be looked up by another Link further down the chain.
+     *
+     * @param ce ChainEnvironment to evaluate against
+     * @param msg current message to evaluate against
+     */
 	public void execute(EventStore es, MonitorMessage msg) {
 		// EventStore es = EventStore.getThreadInstance();
 		String eval = "";
@@ -65,6 +83,11 @@ public class SetTask implements Task {
 		}
 	}
 
+    /**
+     * Returns a String representation of the result and expression.  This is
+     * the "raw" form, as given to the constructor, not the evaluated form.
+     * @return a String representation of "result" and "expression".
+     */
 	public String toString() {
 		return result + " = " + expression;
 	}
