@@ -5,6 +5,10 @@ import java.lang.management.ManagementFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+/**
+ * Class ManagementContext is a convenience class to simplfy adding MBeans
+ * to expose them for management.
+ */
 public class ManagementContext {
 
 	public static void addMBean(Object obj, String id) {

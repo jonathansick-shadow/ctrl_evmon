@@ -11,6 +11,9 @@ import lsst.ctrl.evmon.NormalizeMessageFilter;
 import lsst.ctrl.evmon.engine.MonitorMessage;
 
 
+/**
+ * Class MysqlReader reads responses from a query to a MySQL database.
+ */
 public class MysqlReader implements MessageReader {
 	// TODO:  "NormalizeMessageFilter" should just be a MessageFilter object
 	// with subclasses to do various things to messages.
@@ -29,16 +32,35 @@ public class MysqlReader implements MessageReader {
 	String query = null;
 	int count = 0;
 
+    /**
+     * Class constructor MysqlReader connects to a MySQL database 
+     * @param host the databse host to connect to
+     * @param database the database name to use
+     * @param user the user to connect as
+     * @param password the password to use when establishing the connection
+     */
 	public MysqlReader(String host, String database, String user,
 			String password) {
 		this(host, database, user, password, defaultPort);
 	}
 
+    /**
+     * Class constructor MysqlReader connects to a MySQL database 
+     * @param host the databse host to connect to
+     * @param database the database name to use
+     * @param user the user to connect as
+     * @param password the password to use when establishing the connection
+     * @param port the port that the MySQL server is listening on
+     */
 	public MysqlReader(String host, String database, String user,
 			String password, int port) {
 		openConnection(host, database, user, password, port);
 	}
 
+    /**
+     * Sets the SELECT statement for this MysqlReader
+     * @param query the MySQL query to send to the MySQL server
+     */
 	public void setSelectString(String query) {
 		if (this.query != null) {
 			System.err
@@ -48,6 +70,10 @@ public class MysqlReader implements MessageReader {
 		this.query = query;
 	}
 
+    /**
+     * Gets the next message from the MySQL query
+     * @return a MonitorMessage with the information the next response line of the MySQL query
+     */
 	public MonitorMessage getMessage() {
 		if (query == null) {
 			System.err
@@ -103,11 +129,15 @@ public class MysqlReader implements MessageReader {
 		return null;
 	}
 
+    /**
+     * Sets a NormalizeMessageFilter for the input stream
+     * @param filter the NormalizeMessageFilter to use
+     */
 	public void setFilter(NormalizeMessageFilter filter) {
 		this.filter = filter;
 	}
 	
-	public void openConnection(String host, String database, String user,
+	private void openConnection(String host, String database, String user,
 			String password, int port) {
 
 		String url = "jdbc:mysql://" + host + "/" + database;

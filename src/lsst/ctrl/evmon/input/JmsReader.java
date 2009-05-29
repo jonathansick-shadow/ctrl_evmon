@@ -13,7 +13,9 @@ import lsst.ctrl.evmon.engine.MonitorMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 
-
+/**
+ * Class JmsReader is used to read messages from a JMS topic.
+ */
 public class JmsReader implements MessageReader {
 
 	private Destination destination;
@@ -24,20 +26,35 @@ public class JmsReader implements MessageReader {
 	static int defaultPort = 61616;
 	static String defaultHost = "localhost";
 
+    /**
+     * Class construct JmsReader reads from a topic on "localhost" on the default
+     * @param topic the JMS topic to subscribe to
+     */
 	public JmsReader(String topic) {
 		this(topic, defaultHost, defaultPort);
 	}
 	
+    /**
+     * Class construct JmsReader reads from a topic on "localhost" on the default
+     * @param topic the JMS topic to subscribe to
+     * @param host the JMS broker host to connect to
+     */
 	public JmsReader(String topic, String host) {
 		this(topic, host, defaultPort);
 	}
 	
+    /**
+     * Class construct JmsReader reads from a topic on "localhost" on the default
+     * @param topic the JMS topic to subscribe to
+     * @param host the JMS broker host to connect to
+     * @param port the server port to connect to
+     */
 	public JmsReader(String topic, String host, int port) {
 		openConnection(topic, host, port);
 	}
 	
 	// TODO: add a way to add all the "extras" on to the end of the URI
-	public void openConnection(String topic, String host, int port) {
+	private void openConnection(String topic, String host, int port) {
 		
 		String brokerURI = "tcp://"+host+":"+port+
 		    "?jms.useAsyncSend=true";
@@ -61,6 +78,10 @@ public class JmsReader implements MessageReader {
 		}
 	}
 	
+    /**
+     * Retrieve the next available message from the Reader's data source
+     * @return MonitorMessage encapsulating the retrieved message
+     */
 	public MonitorMessage getMessage() {
 		MonitorMessage mon_message = null;
 		Message message = null;

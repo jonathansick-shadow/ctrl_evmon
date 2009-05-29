@@ -11,12 +11,20 @@ import lsst.ctrl.evmon.utils.MultiMap;
 
 import org.apache.activemq.command.ActiveMQTextMessage;
 
+/**
+ * Class LsstMessage is a representation of a message sent by the LSST event system
+ */
 public class LsstMessage extends MonitorMessage {
 	MultiMap map = new MultiMap();
 	String text = null;
 
 	String eventTimestamp = null;
 
+    /**
+     * Constructor LsstMessage takes a message sent from the LSST event system
+     * and converts it to a MonitorMessage for internal use.
+     * @param msg the message to parse
+     */
 	public LsstMessage(Message msg) {
 		// super(msg);
 		ActiveMQTextMessage textMsg = (ActiveMQTextMessage) msg;
@@ -31,11 +39,15 @@ public class LsstMessage extends MonitorMessage {
 		}
 	}
 	
+    /**
+     * method to retrieve all the keys for this LsstMessage
+     * @return the Set of Strings representing all the keys for this LsstMessage
+     */
 	public Set keySet() {
 		return map.keySet();
 	}
 
-	public void unmarshall(String text) {
+	private void unmarshall(String text) {
 		Vector<String> vec = null;
 		Vector<String> vec2 = null;
 
@@ -62,11 +74,16 @@ public class LsstMessage extends MonitorMessage {
 
 	// TODO - This needs to have a counterpart that returns ALL instances of
 	// objects that match "key"
+    /**
+     * Method to retrieve a value for a key
+     * @param key the key to use for lookup
+     * @return the object retrieved for this key.  If the key doesn't exist, return null
+     */
 	public Object get(String key) {
 		return map.get(key);
 	}
 
-	public void unmarshall(Vector<String> vec) {
+	private void unmarshall(Vector<String> vec) {
 		String type;
 		String key;
 		String val;

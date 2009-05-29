@@ -3,6 +3,9 @@ package lsst.ctrl.evmon.math;
 import java.math.BigDecimal;
 import java.util.StringTokenizer;
 
+/**
+ * Class ArithmeticExpression is used to evaluate math expressions
+ */
 public class ArithmeticExpression {
 	Node root = null;
 
@@ -37,14 +40,28 @@ public class ArithmeticExpression {
 		System.out.println("here = " + s5);
 	}
 
+    /**
+     * Class constructor which initializes the ArithmeticExpression
+     * @param input the String to evaluate
+     */
 	public ArithmeticExpression(String input) {
 		root = parse(input);
 	}
 
+    /**
+     * Evaluates the input string from the constructor.
+     * @return the BigDecimal value of the evaluated input string
+     */
 	public BigDecimal evaluate() {
 		return evaluate(root);
 	}
 
+    /**
+     * Evaluates the Node data structure from this point in the tree throughout
+     * the rest of the branches.
+     * @param n the root of the Node tree to evaluate
+     * @return the BigDecimal representing this portion of the Node tree
+     */
 	public BigDecimal evaluate(Node n) {
 		BigDecimal left = new BigDecimal(0);
 		BigDecimal right = new BigDecimal(0);
@@ -70,6 +87,11 @@ public class ArithmeticExpression {
 		return new BigDecimal(0);
 	}
 
+    /**
+     * Parse the input string and return a Node tree representation of it.
+     * @param input the input string to convert to a Node Tree
+     * @return the Node tree which represents the input string
+     */
 	public Node parse(String input) {
 		Expecting state = Expecting.NUMBER;
 		StringTokenizer st = new StringTokenizer(input, "+-*/", true);
