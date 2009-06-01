@@ -13,6 +13,9 @@ import lsst.ctrl.evmon.engine.MonitorMessage;
 import com.mysql.jdbc.MysqlDataTruncation;
 
 
+/**
+ * Class MysqlWriter writes messages to a MySQL database table.
+ */
 public class MysqlWriter {
 	static int defaultPort = 3306;
 	static String MORE = "<more>";
@@ -21,17 +24,34 @@ public class MysqlWriter {
 
 	Connection conn = null;
 
+    /**
+     * Class constructor MysqlWriter
+     *
+     * @param host The MySQL host to connect to
+     * @param database The MySQL database to use
+     * @param user The user to authenticate as
+     * @param password The password to use to authenticate
+     */
 	public MysqlWriter(String host, String database, String user,
 			String password) {
 		this(host, database, user, password, defaultPort);
 	}
 
+    /**
+     * Class constructor MysqlWriter
+     *
+     * @param host The MySQL host to connect to
+     * @param database The MySQL database to use
+     * @param user The user to authenticate as
+     * @param password The password to use to authenticate
+     * @param port The port the MySQL server is listening on
+     */
 	public MysqlWriter(String host, String database, String user,
 			String password, int port) {
 		openConnection(host, database, user, password, port);
 	}
 
-	public void openConnection(String host, String database, String user,
+	private void openConnection(String host, String database, String user,
 			String password, int port) {
 
 		String url = "jdbc:mysql://" + host + "/" + database;
@@ -45,6 +65,17 @@ public class MysqlWriter {
 		}
 	}
 
+    /**
+     * Fills in the database query string using an EventStore and MonitorMessage, and 
+     * sends the query to the MySQL database
+     *
+     * @param es The EventStore to use to look up variables
+     * @param event The MonitorMessage we're currently working with
+     * @param query The query to fill in and send.
+     */
+
+    // TODO: this method has a signature that is inconsistent with the other Writers.  Fix
+    // this!
 	public void send(EventStore es, MonitorMessage event, String query) {
 		int length = query.length();
 		StringBuffer retVal = new StringBuffer();

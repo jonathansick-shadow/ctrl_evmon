@@ -10,17 +10,45 @@ import lsst.ctrl.evmon.engine.EventStore;
 public class LsstEventWriter extends JmsWriter {
 	static String TUPLECOUNT_PROPERTY = "LSSTEVENTTUPLES";
 	
+    /**
+     * Class constructor to create a connection to the default host and port for a topic
+     * to write LSST Events
+     *
+     * @param topic the topic to subscribe to
+     */
 	public LsstEventWriter(String topic) {
 		this(topic, defaultHost, defaultPort);
 	}
+
+    /**
+     * Class constructor to create a connection to a host (and default port) for a topic
+     * to write LSST Events.
+     *
+     * @param topic the topic to subscribe to
+     * @param host the event broker host to connect to
+     */
 	public LsstEventWriter(String topic, String host) {
 		this(topic, host, defaultPort);
 	}
 	
+    /**
+     * Class constructor to create a connection to the default host and port for a topic
+     * to write LSST Events
+     *
+     * @param topic the topic to subscribe to
+     * @param host the event broker host to connect to
+     * @param port the event broker port
+     */
 	public LsstEventWriter(String topic, String host, int port) {
 		super(topic, host, port);
 	}
 	
+    /**
+     * Send an LSST Event.
+     *
+     * @param es The EventStore to use to look up variables in the templtes
+     * @param template the keys/values to send in the LSST Event
+     */
 	public void send(EventStore es, Template template) {
 		// EventStore es = EventStore.getThreadInstance();
 		String retVal = "node||root||" + template.size() + "~~";
