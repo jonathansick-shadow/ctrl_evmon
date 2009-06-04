@@ -89,7 +89,7 @@ public class EventStore {
     /**
      * Setter method to store a MonitorMessage with a key to look it up later.
      * @param key String to use as a key
-     * @param value MonitorMessage value to store
+     * @param msg MonitorMessage value to store
      */
 	public void put(String key, MonitorMessage msg) {
 		map.put(key, msg);

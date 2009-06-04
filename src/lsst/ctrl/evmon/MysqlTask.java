@@ -36,8 +36,8 @@ public class MysqlTask implements Task, Link {
      * Sends the query string to the writer, given the EventStore and current
      * message being evaluated by the EventMonitor.
      *
-     * @param ce ChainEnvironment to evaluate against
-     * @param msg current message to evaluate against
+     * @param es EventStore to evaluate against
+     * @param event current message to evaluate against
      */
 	public void execute(EventStore es, MonitorMessage event) {
 		writer.send(es, event, query);

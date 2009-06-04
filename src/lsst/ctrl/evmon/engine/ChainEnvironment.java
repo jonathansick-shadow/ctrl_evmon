@@ -32,7 +32,7 @@ public class ChainEnvironment  {
     /**
      * Class constructor ChainEnvironment is initialized with a Chain, and a null
      * EventStore
-     * @param Chain Chain to keep information about.
+     * @param chain Chain to keep information about.
      */
 	public ChainEnvironment(Chain chain) {
 		this.chain = chain;
@@ -44,7 +44,7 @@ public class ChainEnvironment  {
     /**
      * Class constructor ChainEnvironment is initialized with a Chain, and an
      * EventStore
-     * @param Chain Chain to keep information about.
+     * @param chain Chain to keep information about.
      * @param es EventStore to use for this ChainEnvironment
      */
 	public ChainEnvironment(Chain chain, EventStore es) {
@@ -157,7 +157,7 @@ public class ChainEnvironment  {
     /**
      * Performs an operation on the current Link in the Chain.  This can
      * be checking an Assertion, checking a Condition, or executing a task
-     * @param ce ChainEnvironment to evaluate against
+     * @param engine EngineWorker for this chain
      * @param msg current message to evaluate against
      */
 	public int runTasks(EngineWorker engine, MonitorMessage msg) {

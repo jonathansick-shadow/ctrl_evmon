@@ -52,7 +52,7 @@ urn null
     /**
      * Method to put a key/value pair into this MonitorMessage
      * @param key the key to use for lookup
-     * @param key the value to associate with this key
+     * @param value the value to associate with this key
      */
 	public void put(String key, Object value) {
 		map.put(key, value);

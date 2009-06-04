@@ -69,6 +69,13 @@ public class LsstMessage extends MonitorMessage {
 
 	}
 
+
+    // This needs to be refactored to remove this method
+    /**
+     * put a key/value part into message
+     * @param key key value
+     * @param value key value
+     */
 	public void put(String key, Object value) {
 	}
 

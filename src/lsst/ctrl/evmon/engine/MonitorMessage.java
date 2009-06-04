@@ -19,7 +19,7 @@ public abstract class MonitorMessage {
     /**
      * Abstract method to put a key/value pair into this MonitorMessage
      * @param key the key to use for lookup
-     * @param key the value to associate with this key
+     * @param value the value to associate with this key
      */
 	public abstract void put(String key, Object value);
 	

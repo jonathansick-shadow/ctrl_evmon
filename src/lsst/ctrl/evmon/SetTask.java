@@ -32,7 +32,7 @@ public class SetTask implements Task {
      * variable specified in the "result" string in the constructor, so it can
      * be looked up by another Link further down the chain.
      *
-     * @param ce ChainEnvironment to evaluate against
+     * @param es EventStore to evaluate against
      * @param msg current message to evaluate against
      */
 	public void execute(EventStore es, MonitorMessage msg) {
