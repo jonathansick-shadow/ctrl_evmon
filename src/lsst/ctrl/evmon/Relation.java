@@ -1,5 +1,9 @@
 package lsst.ctrl.evmon;
 
+/**
+ * This enum represents the different types of comparisons that can be
+ * made in LogicalExpressions
+ */
 public enum Relation {
 	EQUALS {
 		boolean eval(String left, String right) {

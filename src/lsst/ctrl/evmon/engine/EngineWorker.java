@@ -8,18 +8,38 @@ import lsst.ctrl.evmon.Span;
 import lsst.ctrl.evmon.Task;
 import lsst.ctrl.evmon.input.MessageReader;
 
+/**
+ * Class EngineWorker performs the action of "running" a Job.  This entails
+ * reading messages from the Reader specified in the Job and performing operations
+ * as specified by the Chain until all the messages have been processed.
+ */
 public class EngineWorker extends Thread {
 	Job job;
 	MonitorMessage msg = null;
 
+    /**
+     * Class constructor EngineWorker
+     * @param job the Job to "execute"
+     */
 	public EngineWorker(Job job) {
 		this.job = job;
 	}
 
+    /**
+     * This thread's run method
+     */
 	public void run() {
 		runJob();
 	}
 
+    /** 
+     * This is the main execution method of this object, and where all
+     * the work gets done.
+     */
+    // Phanges in how Chains are processed either need to take this method
+    // into account.
+    // Possible future changes include multiple Chains processing a single
+    // Reader's messages, spliting each Chain into it's own thread, etc.
 	public void runJob() {
 
 		EnvironmentList condList = new EnvironmentList();
@@ -218,16 +238,21 @@ public class EngineWorker extends Thread {
 	// this looks like a stupid method, but it's here to make sure that the
 	// threads accessing this and the getter method don't step on each other
 	// and return inconsistent results
+    /**
+     * Setter method to set the current message for the EngineWorker.  
+     * This is synchronized so multiple threads don't step on each other.
+     */
 	public synchronized MonitorMessage setCurrentMessage(MonitorMessage msg) {
 		this.msg = msg;
 		return msg;
 	}
 
+    /**
+     * Accessor method to get  the current message from the EngineWorker.  
+     * This is synchronized so multiple threads don't step on each other.
+     */
 	public synchronized MonitorMessage getCurrentMessage() {
 		return msg;
 	}
 
-	public int getFoo() {
-		return 1;
-	}
 }

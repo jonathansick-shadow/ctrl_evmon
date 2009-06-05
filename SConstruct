@@ -25,6 +25,8 @@ env.libs[pkg] += env.getlibs(" ".join(dependencies))
 #
 # Build/install things
 #
+SConscript(os.path.join("doc","SConscript"))
+
 env['IgnoreFiles'] = r"(~$|\.pyc$|^\.svn$|\.o$)"
 
 Alias("install", [env.Install(env['prefix'], "python"),

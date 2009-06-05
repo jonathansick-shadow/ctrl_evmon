@@ -6,6 +6,9 @@ import java.util.Set;
 import lsst.ctrl.evmon.engine.EventStore;
 import lsst.ctrl.evmon.engine.MonitorMessage;
 
+/**
+ * This class
+ */
 public class ExclusionFilterTask implements Task {
 	static String DEFAULT_SEP = ";";
 	String sep = null;
