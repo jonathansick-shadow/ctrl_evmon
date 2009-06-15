@@ -3,6 +3,7 @@ package lsst.ctrl.evmon;
 import java.util.Vector;
 
 import lsst.ctrl.evmon.engine.EngineWorker;
+import java.util.ArrayList;
 
 /**
  * Class EventMonitor is the object that administers the execution of all Jobs given to it.
@@ -31,20 +32,24 @@ public class EventMonitor {
     /**
      * Execute the Jobs on jobs list.  This method does not return.
      */
-	public void runJobs() {
-		for (int i = 0; i < jobs.size(); i++) {
-			EngineWorker ew = new EngineWorker(jobs.get(i));
-			ew.start();
-		}
-		System.out.println("really done");
-		// TODO: we should .join here, not sleep
-		for (;;) {
-			try {
-				Thread.sleep(60000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+    public void runJobs() {
+        ArrayList<EngineWorker> list = new ArrayList<EngineWorker>();
+        for (int i = 0; i < jobs.size(); i++) {
+            EngineWorker ew = new EngineWorker(jobs.get(i));
+            ew.start();
+            list.add(ew);
+        }
+        
+        // run through the list, waiting on each thread to complete.
+        // threads that have not completed will block, but will fall through
+        // when completed.  threads that have already completed will fall through.
+        for (int i = 0; i < list.size(); i++) {
+            try {
+                EngineWorker ew = list.get(i);
+                ew.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
