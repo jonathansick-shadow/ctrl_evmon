@@ -23,7 +23,7 @@ public class ConsoleWriter implements MessageWriter, StringWriter {
      * @deprecated
      */
     // TODO: re-work the API, since this class doesn't use it.  There's a
-    // better way to specify the class heirarchy to take this into account.
+    // better way to specify the class hierarchy to take this into account.
 	public void openConnection(URI uri) {
 	}
 	

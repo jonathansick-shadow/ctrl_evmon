@@ -15,6 +15,8 @@ public enum Relation {
 	},
 	NOT_EQUAL {
 		boolean eval(String left, String right) {
+			if (left == null)
+				return false;
 			if (left.equals(right) == false)
 				return true;
 			return false;

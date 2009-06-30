@@ -98,6 +98,10 @@ public class Launch {
 			TestCase25 tc25 = new TestCase25();
 			job = tc25.createJob();
 			break;
+		case 27:
+			TestCase27 tc27 = new TestCase27();
+			job = tc27.createJob();
+			break;
 		}
 		
 		if (job == null) {

@@ -139,6 +139,13 @@ public class ChainEnvironment  {
 		this.exceptionThread = thread;
 	}
 	
+	/**
+	 * Clear the ExceptionThread registered for this ChainEnvironment
+	 */
+	public void clearExceptionThread() {
+		this.exceptionThread.interrupt();
+	}
+	
 	
 	// this looks like a stupid thing to have a method for, but
 	// the EngineWorker uses it to update the currentLink it is

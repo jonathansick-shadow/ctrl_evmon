@@ -46,7 +46,7 @@ public class LsstEventWriter extends JmsWriter {
     /**
      * Send an LSST Event.
      *
-     * @param es The EventStore to use to look up variables in the templtes
+     * @param es The EventStore to use to look up variables in the templates
      * @param template the keys/values to send in the LSST Event
      */
 	public void send(EventStore es, Template template) {

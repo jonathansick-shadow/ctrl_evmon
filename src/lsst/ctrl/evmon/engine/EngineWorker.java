@@ -208,6 +208,7 @@ public class EngineWorker extends Thread {
 		for (int i = 0; i < removeList.size(); i++) {
 			ChainEnvironment ce = removeList.get(i);
 			masterList.remove(ce);
+			ce.clearExceptionThread();
 			ce = null;
 		}
 		removeList.clear();

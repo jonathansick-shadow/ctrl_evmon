@@ -80,6 +80,7 @@ public class JmsWriter implements MessageWriter {
 		producer = session.createProducer(destination);
 
 		} catch (Exception e) {
+			System.out.println("pffft!");
 			System.err.println(e);
 		}
 	}
