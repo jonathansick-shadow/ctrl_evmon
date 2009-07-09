@@ -12,12 +12,15 @@ def main():
     dest = "durations"
     if len(sys.argv) > 3:
         dest = sys.argv[3]
-
     dbAuth = DbAuth.DbAuth()
     authinfo = dbAuth.readAuthInfo(host)
+
     monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dest))
     monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dest))
+    monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dest))
+    monitor.addJob(fromdb.PostprocessDuration(runid, authinfo, dest))
     monitor.addJob(fromdb.EventWaitDuration(runid, authinfo, dest))
+    monitor.addJob(fromdb.SliceEventWaitDuration(runid, authinfo, dest))
     monitor.addJob(fromdb.StageDuration(runid, authinfo, dest))
 
     monitor.runJobs()

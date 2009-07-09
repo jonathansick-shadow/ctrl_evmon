@@ -99,6 +99,20 @@ def EventWaitDuration(runid, authinfo, destination="durations"):
     @param destination the name of the table to write to (def: "durations")
     @return Job   a Job to be added to a Monitor
     """
+    return PipelineBlockDuration(runid,
+                         'harness.pipeline.visit.stage.handleEvents.eventwait',
+                                 authinfo, destination)
+
+def SliceEventWaitDuration(runid, authinfo, destination="durations"):
+    """
+    calculate the time spent in a Slice waiting for an event to arrive.  
+    The data is read in from the logs database.
+    @param runid       the run identifier for the run to process
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @param destination the name of the table to write to (def: "durations")
+    @return Job   a Job to be added to a Monitor
+    """
     return SliceBlockDuration(runid,
                             'harness.slice.visit.stage.handleEvents.eventwait',
                               authinfo, destination)
