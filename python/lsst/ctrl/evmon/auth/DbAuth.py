@@ -18,11 +18,22 @@ class DbAuth:
     def readAuthInfo(self, host, port='3306'):
         list = self.getAuthInfoList()
         cnt = len(list)
-        
+
         for i in range(0,cnt):
             authInfo = self.getAuthInfo(i)
             if (authInfo['host'] == host) and (authInfo['port'] == port):
                 return authInfo
+
+        if host.find('.') < 0:
+            # there is no domain at the end of this hostname; we will
+            # match against the first entry with this machine name
+            host = host + "."
+            for i in range(0,cnt):
+                authInfo = self.getAuthInfo(i)
+                if authInfo['host'].startswith(host) and \
+                   authInfo['port'] == port:
+                    return authInfo
+                
         return None
     
     def getDatabase(self):
