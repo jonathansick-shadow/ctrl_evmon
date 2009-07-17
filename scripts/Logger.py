@@ -21,7 +21,6 @@ port = "3306"
 if len(sys.argv) > 1:
     broker = sys.argv[1]
     if broker.find('.') < 0:
-        print "broker =", broker
         broker += ".ncsa.uiuc.edu"
 if len(sys.argv) > 2:
     host = sys.argv[2]
