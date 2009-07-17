@@ -14,13 +14,19 @@ import lsst.ctrl.evmon.EventMonitor as EventMonitor
 import lsst.ctrl.evmon.db as db
 import sys
 
+broker = "lsst4.ncsa.uiuc.edu"
 host = "lsst10.ncsa.uiuc.edu"
 port = "3306"
 
 if len(sys.argv) > 1:
-    host = sys.argv[1]
+    broker = sys.argv[1]
+    if broker.find('.') < 0:
+        print "broker =", broker
+        broker += ".ncsa.uiuc.edu"
 if len(sys.argv) > 2:
-    port = sys.argv[2]
+    host = sys.argv[2]
+if len(sys.argv) > 3:
+    port = sys.argv[3]
 
 
 query = "INSERT INTO logs.logger(hostId, runId, sliceId, LEVEL, LOG, DATE, TIMESTAMP, COMMENT, custom, STATUS, pipeline) values({$msg:hostId}, {$msg:runId}, {$msg:sliceId}, {$msg:LEVEL}, {$msg:LOG}, {$msg:DATE}, {$msg:TIMESTAMP}, {$msg:COMMENT}, {$custom}, {$msg:STATUS}, {$msg:pipeline});"
@@ -55,7 +61,7 @@ chain.addLink(filterTask)
 mysqlTask = MysqlTask(mysqlWriter, query)
 chain.addLink(mysqlTask)
 
-reader = LsstEventReader("LSSTLogging", "lsst4.ncsa.uiuc.edu")
+reader = LsstEventReader("LSSTLogging", broker)
 job = Job(reader, chain)
 
 monitor = EventMonitor(job)
