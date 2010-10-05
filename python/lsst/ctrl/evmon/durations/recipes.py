@@ -6,9 +6,9 @@ from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 
 from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter
 
-insertTmpl = "INSERT INTO logs.%(destination)s (runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s);"
+insertTmpl = "INSERT INTO %(dbname)s.durations (runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s);"
 
-def DBWriteTask(data, authinfo, destination="durations"):
+def DBWriteTask(data, authinfo, dbname):
     """
     return the task that will write duration data to the output database
     table.
@@ -29,18 +29,15 @@ def DBWriteTask(data, authinfo, destination="durations"):
                             stageid     the stage identifier
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     """
-    if destination is not None:
-        data["destination"] = destination;
-    if not data.has_key('destination'):
-        data["destination"] = "durations";
+    data["dbname"] = dbname
     insert = insertTmpl % data
-    writer = MysqlWriter(authinfo["host"], "logs",
+    writer = MysqlWriter(authinfo["host"], dbname,
                          authinfo["user"], authinfo["password"])
     return MysqlTask(writer, insert)
 
-def SliceBlockDurationChain(runid, logname, authinfo, destination="durations"):
+def SliceBlockDurationChain(runid, logname, authinfo, dbname):
     """
     return the Chain of conditions and tasks required to calculation the
     duration of the a traced block in the Slice harness code.
@@ -49,7 +46,6 @@ def SliceBlockDurationChain(runid, logname, authinfo, destination="durations"):
                           messages
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
     @return Job   a Job to be added to a Monitor
     """
     chain = Chain()
@@ -89,11 +85,11 @@ def SliceBlockDurationChain(runid, logname, authinfo, destination="durations"):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"  }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, destination))
+    chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
     return chain
 
-def PipelineBlockDurationChain(runid, logname, authinfo,
-                               destination="durations"):
+def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
+
     """
     calculate the durations for a particular block executed within Pipeline
     (master) process.
@@ -102,7 +98,6 @@ def PipelineBlockDurationChain(runid, logname, authinfo,
                           messages
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
     @return Job   a Job to be added to a Monitor
     """
     chain = Chain()
@@ -142,11 +137,11 @@ def PipelineBlockDurationChain(runid, logname, authinfo,
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"  }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, destination))
+    chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
     return chain;
 
 def AppBlockDurationChain(runid, stageid, logname, startComm, endComm, 
-                          authinfo, blockName=None, destination="durations"):
+                          authinfo, dbname, blockName=None):
     """
     calculate the duration of application level block.  This requires knowing
     the comments for the starting message and the ending message.  
@@ -161,7 +156,6 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                           db.readAuthInfo()
     @param blockName   a name to give to the block; if None, one is formed
                           from the starting comment
-    @param destination the name of the table to write to (def: "durations")
     @return Chain   a Chain to be added to a Job
     """
     if blockName is None:
@@ -220,12 +214,11 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                      "date":     "{$startdate}",
                      "stageid":  "{$msg[0]:stageId}"  }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, destination))
+    chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
     return chain
 
-    
 
-def LoopDurationChain(runid, authinfo, destination="durations"):
+def LoopDurationChain1(runid, authinfo, dbname):
     """
     calculate the time required to complete each visit loop within the 
     master Pipeline process.
@@ -233,11 +226,10 @@ def LoopDurationChain(runid, authinfo, destination="durations"):
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
     @return Job   a Job to be added to a Monitor
     """
     chain = Chain()
-
+    
     # First log record: start of the visit
     cond1 = LogicalCompare("$msg:LOG",
                            Relation.EQUALS, "harness.pipeline.visit")
@@ -248,18 +240,54 @@ def LoopDurationChain(runid, authinfo, destination="durations"):
     recmatch.add(cond3)
     recmatch.add(cond4)
     chain.addLink(Condition(recmatch));
+    
+    chain.addLink(SetTask("$loopnum", "$msg:loopnum"))
+
+    template = Template()
+    template.put("runid", Template.STRING, "$msg[0]:runId")
+    template.put("log", Template.STRING, "$msg[0]:LOG")
+    template.put("sliceid", Template.INT, "$msg[0]:sliceId")
+    template.put("hostid", Template.STRING, "$msg[0]:hostId")
+    template.put("loopnum", Template.INT, "$msg[0]:loopnum")
+    template.put("pipeline", Template.STRING, "$msg[0]:pipeline")
+
+    outputWriter = ConsoleWriter()
+    eventTask2 = EventTask(outputWriter, template)
+    chain.addLink(eventTask2)
+
+    return chain
+
+    
+
+def LoopDurationChain(runid, authinfo, dbname):
+    """
+    calculate the time required to complete each visit loop within the 
+    master Pipeline process.
+    harness code.
+    @param runid       the run identifier for the run to process
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @return Job   a Job to be added to a Monitor
+    """
+    chain = Chain()
+
+    # First log record: start of the visit
+    cond1 = LogicalCompare("$msg:LOG",
+                           Relation.EQUALS, "harness.pipeline.visit")
+    cond2 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "start")
+    recmatch = LogicalAnd(cond1, cond2)
+    chain.addLink(Condition(recmatch));
 
     chain.addLink(SetTask("$loopnum", "$msg:loopnum"))
-    chain.addLink(SetTask("$nextloop", "$msg:loopnum + 1"))
+    #chain.addLink(SetTask("$nextloop", "$msg:loopnum + 1"))
 
     # Next log records:  the next loop (same log message)
-    cond2a = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$nextloop")
+    cond2a = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end")
     cond2b = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
-    recmatch = LogicalAnd(cond1, cond2)
-    recmatch.add(cond2a)
+    cond3 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
+    recmatch = LogicalAnd(cond1, cond2a)
     recmatch.add(cond2b)
     recmatch.add(cond3)
-    recmatch.add(cond4)
     chain.addLink(Condition(recmatch));
 
     chain.addLink(SetTask("$startdate", "$msg[0]:DATE"))
@@ -276,6 +304,24 @@ def LoopDurationChain(runid, authinfo, destination="durations"):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"   }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, destination))
+    #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+    template = Template()
+    template.put("runid", Template.STRING, "$msg[0]:runId")
+    template.put("workerid", Template.STRING, "$msg[0]:workerid")
+    template.put("log", Template.STRING, "$msg[0]:LOG")
+    template.put("sliceid", Template.INT, "$msg[0]:sliceId")
+    template.put("hostid", Template.STRING, "$msg[0]:hostId")
+    template.put("loopnum", Template.INT, "$msg[0]:loopnum")
+    template.put("pipeline", Template.STRING, "$msg[0]:pipeline")
+    template.put("startdate", Template.STRING, "$startdate")
+    template.put("stageId", Template.STRING, "$msg[0]:stageId")
+    template.put("firsttime", Template.INT, "$msg[0]:TIMESTAMP")
+    template.put("secondtime", Template.INT, "$msg[1]:TIMESTAMP")
+    template.put("duration", Template.INT, "$duration")
+
+    outputWriter = ConsoleWriter()
+    eventTask2 = EventTask(outputWriter, template)
+    chain.addLink(eventTask2)
+
     return chain
 

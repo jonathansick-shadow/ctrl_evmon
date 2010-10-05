@@ -14,7 +14,7 @@ import lsst.ctrl.evmon.EventMonitor as EventMonitor
 import lsst.ctrl.evmon.db as db
 import sys
 
-broker = "lsst4.ncsa.uiuc.edu"
+broker = "lsst8.ncsa.uiuc.edu"
 host = "lsst10.ncsa.uiuc.edu"
 port = "3306"
 

@@ -5,23 +5,21 @@ from lsst.ctrl.evmon.durations import fromdb
 from lsst.ctrl.evmon.auth import DbAuth
 
 def main():
+    host = "lsst10.ncsa.uiuc.edu"
+
     runid = sys.argv[1]
-    host = "lsst10"
-    if len(sys.argv) > 2:
-        host = sys.argv[2]
-    dest = "durations"
-    if len(sys.argv) > 3:
-        dest = sys.argv[3]
+    dbname = sys.argv[2]
+
     dbAuth = DbAuth.DbAuth()
     authinfo = dbAuth.readAuthInfo(host)
 
-    monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dest))
-    monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dest))
-    monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dest))
-    monitor.addJob(fromdb.PostprocessDuration(runid, authinfo, dest))
-    monitor.addJob(fromdb.EventWaitDuration(runid, authinfo, dest))
-    monitor.addJob(fromdb.SliceEventWaitDuration(runid, authinfo, dest))
-    monitor.addJob(fromdb.StageDuration(runid, authinfo, dest))
+    monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dbname))
+    #monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dbname, dest))
+    #monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dbname, dest))
+    #monitor.addJob(fromdb.PostprocessDuration(runid, authinfo, dbname, dest))
+    #monitor.addJob(fromdb.EventWaitDuration(runid, authinfo, dbname, dest))
+    #monitor.addJob(fromdb.SliceEventWaitDuration(runid, authinfo, dbname, dest))
+    #monitor.addJob(fromdb.StageDuration(runid, authinfo, dbname, dest))
 
     monitor.runJobs()
 
