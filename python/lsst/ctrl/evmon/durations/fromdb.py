@@ -5,7 +5,7 @@ from lsst.ctrl.evmon import Job, NormalizeMessageFilter
 from lsst.ctrl.evmon.input import LsstEventReader, MysqlReader
 from recipes import *
 
-loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline from logs";
+loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline from logs";
 
 def DBReader(query, authinfo, dbname):
     """
@@ -22,7 +22,7 @@ def DBReader(query, authinfo, dbname):
     return out
 
 
-def SliceBlockDuration(runid, logname, authinfo, dbname, destination="durations"):
+def SliceBlockDuration(runid, logname, authinfo, dbname):
     """
     calculate the durations for a particular block executed within Slice
     harness code.
@@ -38,7 +38,7 @@ def SliceBlockDuration(runid, logname, authinfo, dbname, destination="durations"
              (loggerselect, runid, logname)
 
     mysqlReader = DBReader(select, authinfo, dbname)
-    chain = SliceBlockDurationChain(runid, logname, authinfo, dbname, destination)
+    chain = SliceBlockDurationChain(runid, logname, authinfo, dbname)
     return Job(mysqlReader, chain)    
     
 def PipelineBlockDuration(runid, logname, authinfo, dbname, destination="durations"):
@@ -76,7 +76,7 @@ def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo, dbna
     return Job(mysqlReader, chain)    
 
 
-def ProcessDuration(runid, authinfo, dbname, destination="durations"):
+def ProcessDuration(runid, authinfo, dbname):
     """
     calculate the time required to execute the process() function for each
     each stage within each worker Slice process.  
@@ -88,9 +88,9 @@ def ProcessDuration(runid, authinfo, dbname, destination="durations"):
     @return Job   a Job to be added to a Monitor
     """
     return SliceBlockDuration(runid, 'harness.slice.visit.stage.process',
-                              authinfo, dbname, destination)
+                              authinfo, dbname)
 
-def EventWaitDuration(runid, authinfo, dbname, destination="durations"):
+def EventWaitDuration(runid, authinfo, dbname):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
     The data is read in from the logs database.
@@ -102,9 +102,9 @@ def EventWaitDuration(runid, authinfo, dbname, destination="durations"):
     """
     return PipelineBlockDuration(runid,
                          'harness.pipeline.visit.stage.handleEvents.eventwait',
-                                 authinfo, dbname, destination)
+                                 authinfo, dbname)
 
-def SliceEventWaitDuration(runid, authinfo, dbname, destination="durations"):
+def SliceEventWaitDuration(runid, authinfo, dbname):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
     The data is read in from the logs database.
@@ -116,9 +116,9 @@ def SliceEventWaitDuration(runid, authinfo, dbname, destination="durations"):
     """
     return SliceBlockDuration(runid,
                             'harness.slice.visit.stage.handleEvents.eventwait',
-                              authinfo, dbname, destination)
+                              authinfo, dbname)
 
-def StageDuration(runid, authinfo, dbname, destination="durations"):
+def StageDuration(runid, authinfo, dbname):
     """
     calculate the time required to complete each stage within the 
     master Pipeline process.  The data is read in from the logs database.
@@ -129,9 +129,9 @@ def StageDuration(runid, authinfo, dbname, destination="durations"):
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid, 'harness.pipeline.visit.stage',
-                                 authinfo, dbname, destination)
+                                 authinfo, dbname)
 
-def PreprocessDuration(runid, authinfo, dbname, destination="durations"):
+def PreprocessDuration(runid, authinfo, dbname):
     """
     calculate the time required to complete the preprocess function for
     each stage within the master Pipeline process.  The data is read in
@@ -144,7 +144,7 @@ def PreprocessDuration(runid, authinfo, dbname, destination="durations"):
     """
     return PipelineBlockDuration(runid,
                                  'harness.pipeline.visit.stage.preprocess',
-                                 authinfo, dbname, destination)
+                                 authinfo, dbname)
 
 def PostprocessDuration(runid, authinfo, dbname, destination="durations"):
     """
@@ -159,7 +159,7 @@ def PostprocessDuration(runid, authinfo, dbname, destination="durations"):
     """
     return PipelineBlockDuration(runid,
                                  'harness.pipeline.visit.stage.postprocess',
-                                 authinfo, dbname, destination)
+                                 authinfo, dbname)
 
 def LoopDuration(runid, authinfo, dbname):
     """

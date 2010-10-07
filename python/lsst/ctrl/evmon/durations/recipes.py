@@ -64,12 +64,14 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname):
     comp4 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$msg[0]:loopnum")
     comp5 = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
     comp6 = LogicalCompare("$msg:stageId", Relation.EQUALS, "$msg[0]:stageId")
+    comp7 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
     
     recmatch = LogicalAnd(comp1, comp2)
     recmatch.add(comp3)
     recmatch.add(comp4)
     recmatch.add(comp5)
     recmatch.add(comp6)
+    recmatch.add(comp7)
     chain.addLink(Condition(recmatch));
 
     chain.addLink(SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP"))
@@ -85,7 +87,11 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"  }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+    #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+
+    eventTask2 = consoleTask()
+    chain.addLink(eventTask2)
+
     return chain
 
 def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
@@ -116,12 +122,14 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
     comp4 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$msg[0]:loopnum")
     comp5 = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
     comp6 = LogicalCompare("$msg:stageId", Relation.EQUALS, "$msg[0]:stageId")
+    comp7 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
     
     recmatch = LogicalAnd(comp1, comp2)
     recmatch.add(comp3)
     recmatch.add(comp4)
     recmatch.add(comp5)
     recmatch.add(comp6)
+    recmatch.add(comp7)
     chain.addLink(Condition(recmatch));
 
     chain.addLink(SetTask("$duration", "$msg[1]:TIMESTAMP-$msg[0]:TIMESTAMP"))
@@ -137,7 +145,11 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"  }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+    #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+
+    eventTask2 = consoleTask()
+    chain.addLink(eventTask2)
+
     return chain;
 
 def AppBlockDurationChain(runid, stageid, logname, startComm, endComm, 
@@ -218,47 +230,6 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
     return chain
 
 
-def LoopDurationChain1(runid, authinfo, dbname):
-    """
-    calculate the time required to complete each visit loop within the 
-    master Pipeline process.
-    harness code.
-    @param runid       the run identifier for the run to process
-    @param authinfo    the database authorization data returned from
-                          db.readAuthInfo()
-    @return Job   a Job to be added to a Monitor
-    """
-    chain = Chain()
-    
-    # First log record: start of the visit
-    cond1 = LogicalCompare("$msg:LOG",
-                           Relation.EQUALS, "harness.pipeline.visit")
-    cond2 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "start")
-    cond3 = LogicalCompare("$msg:sliceId", Relation.EQUALS, -1)
-    cond4 = LogicalCompare("$msg:runId", Relation.EQUALS, runid)
-    recmatch = LogicalAnd(cond1, cond2)
-    recmatch.add(cond3)
-    recmatch.add(cond4)
-    chain.addLink(Condition(recmatch));
-    
-    chain.addLink(SetTask("$loopnum", "$msg:loopnum"))
-
-    template = Template()
-    template.put("runid", Template.STRING, "$msg[0]:runId")
-    template.put("log", Template.STRING, "$msg[0]:LOG")
-    template.put("sliceid", Template.INT, "$msg[0]:sliceId")
-    template.put("hostid", Template.STRING, "$msg[0]:hostId")
-    template.put("loopnum", Template.INT, "$msg[0]:loopnum")
-    template.put("pipeline", Template.STRING, "$msg[0]:pipeline")
-
-    outputWriter = ConsoleWriter()
-    eventTask2 = EventTask(outputWriter, template)
-    chain.addLink(eventTask2)
-
-    return chain
-
-    
-
 def LoopDurationChain(runid, authinfo, dbname):
     """
     calculate the time required to complete each visit loop within the 
@@ -305,6 +276,15 @@ def LoopDurationChain(runid, authinfo, dbname):
                      "stageid":  "{$msg:stageId}"   }
 
     #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+
+    eventTask2 = consoleTask()
+    chain.addLink(eventTask2)
+
+    return chain
+
+
+def consoleTask():
+
     template = Template()
     template.put("runid", Template.STRING, "$msg[0]:runId")
     template.put("workerid", Template.STRING, "$msg[0]:workerid")
@@ -320,8 +300,6 @@ def LoopDurationChain(runid, authinfo, dbname):
     template.put("duration", Template.INT, "$duration")
 
     outputWriter = ConsoleWriter()
-    eventTask2 = EventTask(outputWriter, template)
-    chain.addLink(eventTask2)
+    eventTask = EventTask(outputWriter, template)
 
-    return chain
-
+    return eventTask
