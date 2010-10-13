@@ -37,7 +37,7 @@ def DBWriteTask(data, authinfo, dbname):
                          authinfo["user"], authinfo["password"])
     return MysqlTask(writer, insert)
 
-def SliceBlockDurationChain(runid, logname, authinfo, dbname):
+def SliceBlockDurationChain(runid, logname, authinfo, dbname, console):
     """
     return the Chain of conditions and tasks required to calculation the
     duration of the a traced block in the Slice harness code.
@@ -46,6 +46,8 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname):
                           messages
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
+    @param dbname      the database to insert this duration information into
+    @param console     boolean indicating to send this output to the console
     @return Job   a Job to be added to a Monitor
     """
     chain = Chain()
@@ -87,14 +89,15 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"  }
 
-    #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
-
-    eventTask2 = consoleTask()
-    chain.addLink(eventTask2)
+    if console == True:
+        eventTask2 = consoleTask()
+        chain.addLink(eventTask2)
+    else:
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
 
     return chain
 
-def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
+def PipelineBlockDurationChain(runid, logname, authinfo, dbname, console):
 
     """
     calculate the durations for a particular block executed within Pipeline
@@ -104,6 +107,8 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
                           messages
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
+    @param dbname      the database to insert this duration information into
+    @param console     boolean indicating to send this output to the console
     @return Job   a Job to be added to a Monitor
     """
     chain = Chain()
@@ -145,15 +150,16 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"  }
 
-    #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+    if console == True:
+        eventTask2 = consoleTask()
+        chain.addLink(eventTask2)
+    else:
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
 
-    eventTask2 = consoleTask()
-    chain.addLink(eventTask2)
-
-    return chain;
+    return chain
 
 def AppBlockDurationChain(runid, stageid, logname, startComm, endComm, 
-                          authinfo, dbname, blockName=None):
+                          authinfo, dbname, console, blockName=None):
     """
     calculate the duration of application level block.  This requires knowing
     the comments for the starting message and the ending message.  
@@ -166,6 +172,8 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                           of the end of the block
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
+    @param dbname      the database to insert this duration information into
+    @param console     boolean indicating to send this output to the console
     @param blockName   a name to give to the block; if None, one is formed
                           from the starting comment
     @return Chain   a Chain to be added to a Job
@@ -226,11 +234,15 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                      "date":     "{$startdate}",
                      "stageid":  "{$msg[0]:stageId}"  }
 
-    chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+    if console == True:
+        eventTask2 = consoleTask()
+        chain.addLink(eventTask2)
+    else:
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
     return chain
 
 
-def LoopDurationChain(runid, authinfo, dbname):
+def LoopDurationChain(runid, authinfo, dbname, console):
     """
     calculate the time required to complete each visit loop within the 
     master Pipeline process.
@@ -238,6 +250,8 @@ def LoopDurationChain(runid, authinfo, dbname):
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
+    @param dbname      the database to insert this duration information into
+    @param console     boolean indicating to send this output to the console
     @return Job   a Job to be added to a Monitor
     """
     chain = Chain()
@@ -275,10 +289,11 @@ def LoopDurationChain(runid, authinfo, dbname):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}"   }
 
-    #chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
-
-    eventTask2 = consoleTask()
-    chain.addLink(eventTask2)
+    if console == True:
+        eventTask2 = consoleTask()
+        chain.addLink(eventTask2)
+    else:
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
 
     return chain
 

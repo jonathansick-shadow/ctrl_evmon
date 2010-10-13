@@ -22,7 +22,7 @@ def DBReader(query, authinfo, dbname):
     return out
 
 
-def SliceBlockDuration(runid, logname, authinfo, dbname):
+def SliceBlockDuration(runid, logname, authinfo, dbname, console):
     """
     calculate the durations for a particular block executed within Slice
     harness code.
@@ -31,25 +31,25 @@ def SliceBlockDuration(runid, logname, authinfo, dbname):
                           messages
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     select = "%s where runId='%s' and log='%s' order by TIMESTAMP;" % \
              (loggerselect, runid, logname)
 
     mysqlReader = DBReader(select, authinfo, dbname)
-    chain = SliceBlockDurationChain(runid, logname, authinfo, dbname)
+    chain = SliceBlockDurationChain(runid, logname, authinfo, dbname, console)
     return Job(mysqlReader, chain)    
     
-def PipelineBlockDuration(runid, logname, authinfo, dbname, destination="durations"):
+def PipelineBlockDuration(runid, logname, authinfo, dbname, console):
 
     select = "%s where runid='%s' and sliceId=-1 and log='%s' order by TIMESTAMP;" % (loggerselect, runid, logname)
     mysqlReader = DBReader(select, authinfo, dbname)
-    chain = PipelineBlockDurationChain(runid, logname, authinfo, destination)
+    chain = PipelineBlockDurationChain(runid, logname, authinfo, dbname, console)
     return Job(mysqlReader, chain)
 
 def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo, dbname,
-                     blockName=None, destination="durations"):
+                     blockName=None):
     """
     calculate the duration of application level block.  This requires knowing
     the comments for the starting message and the ending message.  
@@ -64,7 +64,7 @@ def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo, dbna
                           db.readAuthInfo()
     @param blockName   a name to give to the block; if None, one is formed
                           from the starting comment
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     select = "%s where runId='%s' and log='%s' order by TIMESTAMP;" % \
@@ -72,11 +72,11 @@ def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo, dbna
 
     mysqlReader = DBReader(select, authinfo, dbname)
     chain = AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
-                                  authinfo, dbname, blockName, destination)
+                                  authinfo, dbname, "AppBlock", blockName)
     return Job(mysqlReader, chain)    
 
 
-def ProcessDuration(runid, authinfo, dbname):
+def ProcessDuration(runid, authinfo, dbname, console):
     """
     calculate the time required to execute the process() function for each
     each stage within each worker Slice process.  
@@ -84,54 +84,54 @@ def ProcessDuration(runid, authinfo, dbname):
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     return SliceBlockDuration(runid, 'harness.slice.visit.stage.process',
-                              authinfo, dbname)
+                              authinfo, dbname, console)
 
-def EventWaitDuration(runid, authinfo, dbname):
+def EventWaitDuration(runid, authinfo, dbname, console):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
     The data is read in from the logs database.
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid,
                          'harness.pipeline.visit.stage.handleEvents.eventwait',
-                                 authinfo, dbname)
+                                 authinfo, dbname, console)
 
-def SliceEventWaitDuration(runid, authinfo, dbname):
+def SliceEventWaitDuration(runid, authinfo, dbname, console):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
     The data is read in from the logs database.
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     return SliceBlockDuration(runid,
                             'harness.slice.visit.stage.handleEvents.eventwait',
-                              authinfo, dbname)
+                              authinfo, dbname, console)
 
-def StageDuration(runid, authinfo, dbname):
+def StageDuration(runid, authinfo, dbname, console):
     """
     calculate the time required to complete each stage within the 
     master Pipeline process.  The data is read in from the logs database.
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid, 'harness.pipeline.visit.stage',
-                                 authinfo, dbname)
+                                 authinfo, dbname, console)
 
-def PreprocessDuration(runid, authinfo, dbname):
+def PreprocessDuration(runid, authinfo, dbname, console):
     """
     calculate the time required to complete the preprocess function for
     each stage within the master Pipeline process.  The data is read in
@@ -139,14 +139,14 @@ def PreprocessDuration(runid, authinfo, dbname):
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid,
                                  'harness.pipeline.visit.stage.preprocess',
-                                 authinfo, dbname)
+                                 authinfo, dbname, console)
 
-def PostprocessDuration(runid, authinfo, dbname, destination="durations"):
+def PostprocessDuration(runid, authinfo, dbname, console):
     """
     calculate the time required to complete the preprocess function for
     each stage within the master Pipeline process.  The data is read in
@@ -154,41 +154,24 @@ def PostprocessDuration(runid, authinfo, dbname, destination="durations"):
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid,
                                  'harness.pipeline.visit.stage.postprocess',
-                                 authinfo, dbname)
+                                 authinfo, dbname, console)
 
-def LoopDuration(runid, authinfo, dbname):
+def LoopDuration(runid, authinfo, dbname, console):
     """
     calculate the time required to complete each visit loop within the 
     master Pipeline process.  The data is read in from the logs database.
     @param runid       the run identifier for the run to process
     @param authinfo    the database authorization data returned from
                           db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
+
     @return Job   a Job to be added to a Monitor
     """
     select = "%s where runid='%s' and log='harness.pipeline.visit' order by TIMESTAMP;" % (loggerselect, runid)
     mysqlReader = DBReader(select, authinfo, dbname)
-    chain = LoopDurationChain(runid, authinfo, dbname)
-    return Job(mysqlReader, chain)
-
-
-def LoopDuration1(runid, authinfo, dbname):
-    """
-    calculate the time required to complete each visit loop within the 
-    master Pipeline process.  The data is read in from the logs database.
-    @param runid       the run identifier for the run to process
-    @param authinfo    the database authorization data returned from
-                          db.readAuthInfo()
-    @param destination the name of the table to write to (def: "durations")
-    @return Job   a Job to be added to a Monitor
-    """
-    select = "%s where runid='%s' and log='harness.pipeline.visit' order by TIMESTAMP;" % (loggerselect, runid)
-    print select
-    mysqlReader = DBReader(select, authinfo, dbname)
-    chain = LoopDurationChain1(runid, authinfo, dbname)
+    chain = LoopDurationChain(runid, authinfo, dbname, console)
     return Job(mysqlReader, chain)
