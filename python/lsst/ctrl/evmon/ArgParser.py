@@ -37,13 +37,13 @@ class ArgParser:
             x += 1
 
         x = 1
-        while x < total:
+        while x <= total:
             for opt in self.options:
                 if x > total:
                     break
                 if opt == args[x]:
                     x += 1
-                    if x < total:
+                    if x <= total:
                         if args[x].startswith("--"):
                             print opt,": missing argument"
                         else:
