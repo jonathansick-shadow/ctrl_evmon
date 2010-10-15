@@ -43,12 +43,6 @@ def main():
         bits |= 16
 
         
-    count = 0
-    while bits:
-        count += (bits & 1)
-        bits >>= 1
-
-
     dbAuth = DbAuth.DbAuth()
     authinfo = dbAuth.readAuthInfo(host)
 
@@ -67,6 +61,11 @@ def main():
         monitor.addJob(fromdb.StageDuration(runid, authinfo, dbname, console))
         monitor.runJobs()
     else: 
+        count = 0
+        while bits:
+            count += (bits & 1)
+            bits >>= 1
+
         if (count == 0) or (count > 1):
             print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
             sys.exit(10)

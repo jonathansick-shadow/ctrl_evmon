@@ -6,7 +6,7 @@ from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 
 from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter
 
-insertTmpl = "INSERT INTO %(dbname)s.durations (runid, name, sliceid, duration, host, loopnum, pipeline, date, stageid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s);"
+insertTmpl = "INSERT INTO %(dbname)s.durations (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s);"
 
 def DBWriteTask(data, authinfo, dbname):
     """
