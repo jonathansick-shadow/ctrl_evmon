@@ -46,7 +46,16 @@ def main():
     dbAuth = DbAuth.DbAuth()
     authinfo = dbAuth.readAuthInfo(host)
 
+    count = 0
+    while bits:
+        count += (bits & 1)
+        bits >>= 1
+
     if console == False: # throw everything into the durations table
+        if count > 0:
+            print "options --loop, --process, --preprocess, --postprocess, --stage only specifiable with --console option"
+            sys.exit(10)
+
         monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dbname, console))
         monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dbname, console))
         monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dbname, console))
@@ -61,11 +70,6 @@ def main():
         monitor.addJob(fromdb.StageDuration(runid, authinfo, dbname, console))
         monitor.runJobs()
     else: 
-        count = 0
-        while bits:
-            count += (bits & 1)
-            bits >>= 1
-
         if (count == 0) or (count > 1):
             print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
             sys.exit(10)
@@ -81,6 +85,10 @@ def main():
             job = fromdb.PreprocessDuration(runid, authinfo, dbname, console)
         elif stage == True:
             job = fromdb.StageDuration(runid, authinfo, dbname, console)
+
+        if job == None:
+            print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
+            sys.exit(10)
 
         monitor = EventMonitor(job)
         monitor.runJobs()
