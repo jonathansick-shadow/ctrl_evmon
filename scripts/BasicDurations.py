@@ -12,6 +12,8 @@ def main():
     parser = ArgParser.ArgParser('basic duration calculations')
     parser.addArg("--runid", "store", None)
     parser.addArg("--dbname", "store", None)
+    parser.addArg("--logtable", "store", None)
+    parser.addArg("--durtable", "store", None)
     parser.addArg("--console", "flag", False)
     parser.addArg("--loop", "flag", False)
     parser.addArg("--process", "flag", False)
@@ -24,6 +26,8 @@ def main():
     runid = parser.getArg("--runid")
     dbname = parser.getArg("--dbname")
     console = parser.getFlag("--console")
+    logtable = parser.getArg("--logtable")
+    durtable = parser.getArg("--durtable")
 
     bits = 0
     loop = parser.getFlag("--loop")
@@ -42,6 +46,11 @@ def main():
     if stage == True:
         bits |= 16
 
+    if logtable == None:
+        logtable = "Logs"
+    if durtable == None:
+        durtable = "Durations"
+
         
     dbAuth = DbAuth.DbAuth()
     authinfo = dbAuth.readAuthInfo(host)
@@ -56,10 +65,10 @@ def main():
             print "options --loop, --process, --preprocess, --postprocess, --stage only specifiable with --console option"
             sys.exit(10)
 
-        monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dbname, console))
-        monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dbname, console))
-        monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dbname, console))
-        monitor.addJob(fromdb.PostprocessDuration(runid, authinfo, dbname, console))
+        monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dbname, logtable, durtable, console))
+        monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dbname, logtable, durtable, console))
+        monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console))
+        monitor.addJob(fromdb.PostprocessDuration(runid, authinfo, dbname, logtable, durtable, console))
 
         # does this exist still?
         #monitor.addJob(fromdb.EventWaitDuration(runid, authinfo, dbname, console))
@@ -67,7 +76,7 @@ def main():
         # does this exist still?
         #monitor.addJob(fromdb.SliceEventWaitDuration(runid, authinfo, dbname, console))
 
-        monitor.addJob(fromdb.StageDuration(runid, authinfo, dbname, console))
+        monitor.addJob(fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console))
         monitor.runJobs()
     else: 
         if (count == 0) or (count > 1):
@@ -76,15 +85,15 @@ def main():
 
         job = None
         if loop == True:
-            job = fromdb.LoopDuration(runid, authinfo, dbname, console)
+            job = fromdb.LoopDuration(runid, authinfo, dbname, logtable, durtable, console)
         elif process == True:
-            job = fromdb.ProcessDuration(runid, authinfo, dbname, console)
+            job = fromdb.ProcessDuration(runid, authinfo, dbname, logtable, durtable, console)
         elif preprocess == True:
-            job = fromdb.PreprocessDuration(runid, authinfo, dbname, console)
+            job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
         elif postprocess == True:
-            job = fromdb.PreprocessDuration(runid, authinfo, dbname, console)
+            job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
         elif stage == True:
-            job = fromdb.StageDuration(runid, authinfo, dbname, console)
+            job = fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console)
 
         if job == None:
             print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"

@@ -6,9 +6,9 @@ from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 
 from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter
 
-insertTmpl = "INSERT INTO %(dbname)s.durations (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s);"
+insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s);"
 
-def DBWriteTask(data, authinfo, dbname):
+def DBWriteTask(data, authinfo, dbname, durtable):
     """
     return the task that will write duration data to the output database
     table.
@@ -32,12 +32,13 @@ def DBWriteTask(data, authinfo, dbname):
 
     """
     data["dbname"] = dbname
+    data["durtable"] = durtable
     insert = insertTmpl % data
     writer = MysqlWriter(authinfo["host"], dbname,
                          authinfo["user"], authinfo["password"])
     return MysqlTask(writer, insert)
 
-def SliceBlockDurationChain(runid, logname, authinfo, dbname, console):
+def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
     """
     return the Chain of conditions and tasks required to calculation the
     duration of the a traced block in the Slice harness code.
@@ -93,11 +94,11 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname, console):
         eventTask2 = consoleTask()
         chain.addLink(eventTask2)
     else:
-        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
 
     return chain
 
-def PipelineBlockDurationChain(runid, logname, authinfo, dbname, console):
+def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
 
     """
     calculate the durations for a particular block executed within Pipeline
@@ -154,12 +155,12 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname, console):
         eventTask2 = consoleTask()
         chain.addLink(eventTask2)
     else:
-        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
 
     return chain
 
 def AppBlockDurationChain(runid, stageid, logname, startComm, endComm, 
-                          authinfo, dbname, console, blockName=None):
+                          authinfo, dbname, durtable, console, blockName=None):
     """
     calculate the duration of application level block.  This requires knowing
     the comments for the starting message and the ending message.  
@@ -238,11 +239,11 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
         eventTask2 = consoleTask()
         chain.addLink(eventTask2)
     else:
-        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
     return chain
 
 
-def LoopDurationChain(runid, authinfo, dbname, console):
+def LoopDurationChain(runid, authinfo, dbname, durtable, console):
     """
     calculate the time required to complete each visit loop within the 
     master Pipeline process.
@@ -293,7 +294,7 @@ def LoopDurationChain(runid, authinfo, dbname, console):
         eventTask2 = consoleTask()
         chain.addLink(eventTask2)
     else:
-        chain.addLink(DBWriteTask(insertValues, authinfo, dbname))
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
 
     return chain
 
