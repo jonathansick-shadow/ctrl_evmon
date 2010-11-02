@@ -60,47 +60,28 @@ def main():
         count += (bits & 1)
         bits >>= 1
 
-    if console == False: # throw everything into the durations table
-        if count > 0:
-            print "options --loop, --process, --preprocess, --postprocess, --stage only specifiable with --console option"
-            sys.exit(10)
+    if (count == 0) or (count > 1):
+        print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
+        sys.exit(10)
 
-        monitor = EventMonitor(fromdb.LoopDuration(runid, authinfo, dbname, logtable, durtable, console))
-        monitor.addJob(fromdb.ProcessDuration(runid, authinfo, dbname, logtable, durtable, console))
-        monitor.addJob(fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console))
-        monitor.addJob(fromdb.PostprocessDuration(runid, authinfo, dbname, logtable, durtable, console))
+    job = None
+    if loop == True:
+        job = fromdb.LoopDuration(runid, authinfo, dbname, logtable, durtable, console)
+    elif process == True:
+        job = fromdb.ProcessDuration(runid, authinfo, dbname, logtable, durtable, console)
+    elif preprocess == True:
+        job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
+    elif postprocess == True:
+        job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
+    elif stage == True:
+        job = fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console)
 
-        # does this exist still?
-        #monitor.addJob(fromdb.EventWaitDuration(runid, authinfo, dbname, console))
+    if job == None:
+        print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
+        sys.exit(10)
 
-        # does this exist still?
-        #monitor.addJob(fromdb.SliceEventWaitDuration(runid, authinfo, dbname, console))
-
-        monitor.addJob(fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console))
-        monitor.runJobs()
-    else: 
-        if (count == 0) or (count > 1):
-            print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
-            sys.exit(10)
-
-        job = None
-        if loop == True:
-            job = fromdb.LoopDuration(runid, authinfo, dbname, logtable, durtable, console)
-        elif process == True:
-            job = fromdb.ProcessDuration(runid, authinfo, dbname, logtable, durtable, console)
-        elif preprocess == True:
-            job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
-        elif postprocess == True:
-            job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
-        elif stage == True:
-            job = fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console)
-
-        if job == None:
-            print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
-            sys.exit(10)
-
-        monitor = EventMonitor(job)
-        monitor.runJobs()
+    monitor = EventMonitor(job)
+    monitor.runJobs()
 
 
 if __name__ == "__main__":
