@@ -1,0 +1,18 @@
+#!/bin/sh
+date
+echo "loop"
+evmon BasicDurations.py --runid pt1prod_im0034 --dbname rplante_DC3b_u_pt1prod_im0034 --durtable durations --logtable logs --loop
+date
+echo "process"
+evmon BasicDurations.py --runid pt1prod_im0034 --dbname rplante_DC3b_u_pt1prod_im0034 --durtable durations --logtable logs --process
+date
+echo "preprocess"
+evmon BasicDurations.py --runid pt1prod_im0034 --dbname rplante_DC3b_u_pt1prod_im0034 --durtable durations --logtable logs --preprocess
+date
+echo "postprocess"
+evmon BasicDurations.py --runid pt1prod_im0034 --dbname rplante_DC3b_u_pt1prod_im0034 --durtable durations --logtable logs --postprocess
+date
+echo "stage"
+evmon BasicDurations.py --runid pt1prod_im0034 --dbname rplante_DC3b_u_pt1prod_im0034 --durtable durations --logtable logs --stage
+date
+echo "done!"

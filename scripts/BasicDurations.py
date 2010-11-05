@@ -72,7 +72,7 @@ def main():
     elif preprocess == True:
         job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
     elif postprocess == True:
-        job = fromdb.PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
+        job = fromdb.PostprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
     elif stage == True:
         job = fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console)
 
