@@ -6,7 +6,7 @@ from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 
 from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter
 
-insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid, comment, workerid) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s, %(comment)s, %(workerid)s);"
+insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid, comment, workerid, userduration, systemduration) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s, %(comment)s, %(workerid)s, %(userduration)s, %(systemduration)s);"
 
 def DBWriteTask(data, authinfo, dbname, durtable):
     """
@@ -148,7 +148,9 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, conso
 
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
     chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
+    chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
+    chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
     
     # write to the durations table
     insertValues = { "runid":    "{$msg:runId}",
@@ -238,7 +240,9 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
 
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
     chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
+    chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
+    chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
     
     # write to the durations table
     insertValues = { "runid":    "{$msg:runId}",
@@ -299,7 +303,9 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
     chain.addLink(SetTask("$startdate", "$msg[0]:DATE"))
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
     chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
+    chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
+    chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
 
     # write to the durations table
     insertValues = { "runid":    "{$msg:runId}",
