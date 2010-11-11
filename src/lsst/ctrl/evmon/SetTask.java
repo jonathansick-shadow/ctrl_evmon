@@ -77,9 +77,9 @@ public class SetTask implements Task {
 			ArithmeticExpression expr = new ArithmeticExpression(eval);
 			BigDecimal val = expr.evaluate();
 			// System.out.println("evaluated as = " + val);
-			es.put(result, val.toString());
+			es.replace(result, val.toString());
 		} else {
-			es.put(result, eval);
+			es.replace(result, eval);
 		}
 	}
 

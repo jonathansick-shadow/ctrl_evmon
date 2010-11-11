@@ -88,6 +88,54 @@ public class MultiMap {
 	public void put(String key, long value) {
 		put(key, new Long(value));
 	}
+
+	/**
+     * Replaces a key/Object pair in the MultiMap.  If any other values exist,
+     * they are deleted and are replaced with this key/Object pair. 
+     * @param key the key to use as an look up value
+     * @param value the value to store
+     */
+	public void replace(String key, Object value) {
+		List<Object> l = map.remove(key);
+		map.put(key, l = new ArrayList<Object>());
+		l.add(value);
+	}	
+	
+    /**
+     * Replaces a key/int pair to the MultiMap.  All other values are deleted.
+     * @param key the key to use as an look up value
+     * @param value the value to store
+     */
+	public void replace(String key, int value) {
+		put(key, new Integer(value));
+	}
+	
+    /**
+     * Replaces a key/float pair in the MultiMap.  All other values are deleted.
+     * @param key the key to use as an look up value
+     * @param value the value to store
+     */
+	public void replace(String key, float value) {
+		put(key, new Float(value));
+	}
+	
+    /**
+     * Replaces a key/double pair in the MultiMap.  All other values are deleted.
+     * @param key the key to use as an look up value
+     * @param value the value to store
+     */
+	public void replace(String key, double value) {
+		put(key, new Double(value));
+	}
+	
+    /**
+     * Replaces a key/long pair in the MultiMap.  All other values are deleted.
+     * @param key the key to use as an look up value
+     * @param value the value to store
+     */
+	public void replace(String key, long value) {
+		put(key, new Long(value));
+	}	
 	
     /**
      * Retrieves all the values in this MultiMap

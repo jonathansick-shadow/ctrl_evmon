@@ -5,7 +5,7 @@ from lsst.ctrl.evmon import Job, NormalizeMessageFilter
 from lsst.ctrl.evmon.input import LsstEventReader, MysqlReader
 from recipes import *
 
-loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline from %s";
+loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime from %s";
 
 def DBReader(query, authinfo, dbname):
     """
