@@ -34,6 +34,7 @@ def DBWriteTask(data, authinfo, dbname, durtable):
     data["dbname"] = dbname
     data["durtable"] = durtable
     insert = insertTmpl % data
+
     writer = MysqlWriter(authinfo["host"], dbname,
                          authinfo["user"], authinfo["password"])
     return MysqlTask(writer, insert)
@@ -94,8 +95,8 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}",
                      "workerid":  "{$msg:workerid}",
-                     "userduration": "${userduration}",
-                     "systemduration": "${systemduration}",
+                     "userduration": "{$userduration}",
+                     "systemduration": "{$systemduration}",
                      "comment":  "{$msg:COMMENT}"  }
 
     if console == True:
@@ -163,8 +164,8 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, conso
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}",
                      "workerid":  "{$msg:workerid}",
-                     "userduration": "${userduration}",
-                     "systemduration": "${systemduration}",
+                     "userduration": "{$userduration}",
+                     "systemduration": "{$systemduration}",
                      "comment":  "{$msg:COMMENT}"  }
 
     if console == True:
@@ -255,8 +256,8 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                      "date":     "{$startdate}",
                      "stageid":  "{$msg[0]:stageId}",
                      "workerid":  "{$msg:workerid}",
-                     "userduration": "${userduration}",
-                     "systemduration": "${systemduration}",
+                     "userduration": "{$userduration}",
+                     "systemduration": "{$systemduration}",
                      "comment":  "{$msg:COMMENT}"  }
 
     if console == True:
@@ -318,8 +319,8 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
                      "date":     "{$startdate}",
                      "stageid":  "{$msg:stageId}",
                      "workerid":  "{$msg:workerid}",
-                     "userduration": "${userduration}",
-                     "systemduration": "${systemduration}",
+                     "userduration": "{$userduration}",
+                     "systemduration": "{$systemduration}",
                      "comment":  "{$msg:COMMENT}"   }
 
     if console == True:
