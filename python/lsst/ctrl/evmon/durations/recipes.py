@@ -6,7 +6,7 @@ from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 
 from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter
 
-insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid, comment, workerid, userduration, systemduration) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s, %(comment)s, %(workerid)s, %(userduration)s, %(systemduration)s);"
+insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid, comment, workerid, userduration, systemduration, stagename) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s, %(comment)s, %(workerid)s, %(userduration)s, %(systemduration)s, %(stagename)s);"
 
 def DBWriteTask(data, authinfo, dbname, durtable):
     """
@@ -97,6 +97,7 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
                      "workerid":  "{$msg:workerid}",
                      "userduration": "{$userduration}",
                      "systemduration": "{$systemduration}",
+                     "stagename": "{$msg:stagename}",
                      "comment":  "{$msg:COMMENT}"  }
 
     if console == True:
@@ -166,6 +167,7 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, conso
                      "workerid":  "{$msg:workerid}",
                      "userduration": "{$userduration}",
                      "systemduration": "{$systemduration}",
+                     "stagename": "{$msg:stagename}",
                      "comment":  "{$msg:COMMENT}"  }
 
     if console == True:
@@ -258,6 +260,7 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                      "workerid":  "{$msg:workerid}",
                      "userduration": "{$userduration}",
                      "systemduration": "{$systemduration}",
+                     "stagename": "{$msg:stagename}",
                      "comment":  "{$msg:COMMENT}"  }
 
     if console == True:
@@ -321,6 +324,7 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
                      "workerid":  "{$msg:workerid}",
                      "userduration": "{$userduration}",
                      "systemduration": "{$systemduration}",
+                     "stagename": "{$msg:stagename}",
                      "comment":  "{$msg:COMMENT}"   }
 
     if console == True:
@@ -344,6 +348,7 @@ def consoleTask():
     template.put("pipeline", Template.STRING, "$msg[0]:pipeline")
     template.put("startdate", Template.STRING, "$startdate")
     template.put("stageId", Template.STRING, "$msg[0]:stageId")
+    template.put("stagename", Template.STRING, "$msg[0]:stagename")
     template.put("firsttime", Template.INT, "$msg[0]:PUBTIME")
     template.put("secondtime", Template.INT, "$msg[1]:PUBTIME")
     template.put("duration", Template.INT, "$duration")
