@@ -94,6 +94,43 @@ public class EventStore {
 	public void put(String key, MonitorMessage msg) {
 		map.put(key, msg);
 	}
+
+    /**
+     * Setter method to replace a string value with a key that may already exist.
+     * @param key String to use as a key
+     * @param value String value to store
+     */
+	public void replace(String key, String value) {
+		map.replace(key, value);
+	}
+
+    /**
+     * Setter method to replace an integer with a key that may already exist.
+     * @param key String to use as a key
+     * @param value integer value to store
+     */
+	public void replace(String key, int value) {
+		map.replace(key, value);
+	}
+	
+    /**
+     * Setter method to replace a BitSet with a key that may already exist..
+     * @param key String to use as a key
+     * @param value BitSet value to store
+     */
+	public void replace(String key, BitSet value) {
+		map.replace(key, value);
+	}
+	
+    /**
+     * Setter method to replace a MonitorMessage with that may already exist.
+     * @param key String to use as a key
+     * @param msg MonitorMessage value to store
+     */
+	public void replace(String key, MonitorMessage msg) {
+		map.replace(key, msg);
+	}
+	
 	
     /**
      * Create a duplicate of this object

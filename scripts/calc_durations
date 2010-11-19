@@ -1,0 +1,20 @@
+#!/bin/sh
+echo "using runid = "$1
+echo "using database = "$2
+date
+echo "loop"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --loop
+date
+echo "process"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --process
+date
+echo "preprocess"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --preprocess
+date
+echo "postprocess"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --postprocess
+date
+echo "stage"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --stage
+date
+echo "done!"
