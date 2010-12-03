@@ -38,7 +38,7 @@ date
 echo "sliceVisit"
 evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisit
 date
-#echo "sliceVisitStage"
-#evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisitStage
-#date
+echo "sliceVisitStage"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisitStage
+date
 echo "done!"
