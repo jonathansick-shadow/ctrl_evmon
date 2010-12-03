@@ -39,6 +39,64 @@ def DBWriteTask(data, authinfo, dbname, durtable):
                          authinfo["user"], authinfo["password"])
     return MysqlTask(writer, insert)
 
+def GenericBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
+    """
+    return the Chain of conditions and tasks required to calculation the
+    duration of the a traced block in the Slice harness code.
+    @param runid       the run identifier for the run to process
+    @param logname     the name of log that contains the start and stop
+                          messages
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+    @param dbname      the database to insert this duration information into
+    @param console     boolean indicating to send this output to the console
+    @return Job   a Job to be added to a Monitor
+    """
+    chain = Chain()
+
+    # find the start of the trace block
+    start = Condition(LogicalCompare("$msg:STATUS", Relation.EQUALS, "start"))
+    chain.addLink(start)
+
+    chain.addLink(SetTask("$loopnum", "$msg:loopnum"))
+    chain.addLink(SetTask("$startdate", "$msg:DATE"))
+
+    # find the end of the trace block
+    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end");       
+    comp2 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
+    
+    recmatch = LogicalAnd(comp1, comp2)
+    chain.addLink(Condition(recmatch));
+
+    chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
+    chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
+    chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
+    chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
+    chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
+    
+    # write to the durations table
+    insertValues = { "runid":    "{$msg:runId}",
+                     "name":     "{$msg:LOG}",
+                     "sliceid":  "{$msg:sliceId}",
+                     "duration": "{$duration}", 
+                     "hostid":   "{$msg:hostId}", 
+                     "loopnum":  "{$loopnum}", 
+                     "pipeline": "{$msg:pipeline}", 
+                     "date":     "{$startdate}",
+                     "stageid":  "{$msg:stageId}",
+                     "workerid":  "{$msg:workerid}",
+                     "userduration": "{$userduration}",
+                     "systemduration": "{$systemduration}",
+                     "stagename": "{$msg:stagename}",
+                     "comment":  "{$msg:COMMENT}"  }
+
+    if console == True:
+        eventTask2 = consoleTask()
+        chain.addLink(eventTask2)
+    else:
+        chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
+
+    return chain
 def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
     """
     return the Chain of conditions and tasks required to calculation the

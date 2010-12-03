@@ -3,6 +3,7 @@ from lsst.ctrl.evmon import ArgParser
 
 from lsst.ctrl.evmon import EventMonitor
 from lsst.ctrl.evmon.durations import fromdb
+
 from lsst.ctrl.evmon.auth import DbAuth
 
 def main():
@@ -20,6 +21,14 @@ def main():
     parser.addArg("--preprocess", "flag", False)
     parser.addArg("--postprocess", "flag", False)
     parser.addArg("--stage", "flag", False)
+    parser.addArg("--butlerPut", "flag", False)
+    parser.addArg("--butlerRead", "flag", False)
+    parser.addArg("--configureSlice", "flag", False)
+    parser.addArg("--initializeQueues", "flag", False)
+    parser.addArg("--initializeStages", "flag", False)
+    parser.addArg("--butlerWrite", "flag", False)
+    parser.addArg("--sliceVisit", "flag", False)
+    parser.addArg("--sliceVisitStage", "flag", False)
 
     parser.parseArgs(sys.argv)
 
@@ -45,6 +54,30 @@ def main():
     stage = parser.getFlag("--stage")
     if stage == True:
         bits |= 16
+    butlerPut = parser.getFlag("--butlerPut")
+    if butlerPut == True:
+        bits |= 32
+    butlerRead = parser.getFlag("--butlerRead")
+    if butlerRead == True:
+        bits |= 64
+    butlerWrite = parser.getFlag("--butlerWrite")
+    if butlerWrite == True:
+        bits |= 128
+    configureSlice = parser.getFlag("--configureSlice")
+    if configureSlice == True:
+        bits |= 256
+    initializeQueues = parser.getFlag("--initializeQueues")
+    if initializeQueues == True:
+        bits |= 512
+    initializeStages = parser.getFlag("--initializeStages")
+    if initializeStages == True:
+        bits |= 1024
+    sliceVisit = parser.getFlag("--sliceVisit")
+    if sliceVisit == True:
+        bits |= 2048
+    sliceVisitStage = parser.getFlag("--sliceVisitStage")
+    if sliceVisitStage == True:
+        bits |= 4096
 
     if logtable == None:
         logtable = "Logs"
@@ -61,7 +94,7 @@ def main():
         bits >>= 1
 
     if (count == 0) or (count > 1):
-        print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
+        print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage, --butlerPut, --butlerRead, --butlerWrite, --configureSlice, --initializeQueues, --initializeStages, --sliceVisit, --sliceVisitStage"
         sys.exit(10)
 
     job = None
@@ -75,9 +108,25 @@ def main():
         job = fromdb.PostprocessDuration(runid, authinfo, dbname, logtable, durtable, console)
     elif stage == True:
         job = fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console)
+    elif butlerPut == True:
+        job = fromdb.GenericBlockDuration(runid, "daf.persistence.butler.put", authinfo, dbname, logtable, durtable, console)
+    elif butlerRead == True:
+        job = fromdb.GenericBlockDuration(runid, "daf.persistence.butler.read", authinfo, dbname, logtable, durtable, console)
+    elif configureSlice == True:
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.configureSlice", authinfo, dbname, logtable, durtable, console)
+    elif initializeQueues == True:
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.initializeQueues", authinfo, dbname, logtable, durtable, console)
+    elif initializeStages == True:
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.initializeStages", authinfo, dbname, logtable, durtable, console)
+    elif butlerWrite == True:
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.iostage.output.write_using_butler", authinfo, dbname, logtable, durtable, console)
+    elif sliceVisit == True:
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.visit", authinfo, dbname, logtable, durtable, console)
+    elif sliceVisitStage == True:
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.visit.stage", authinfo, dbname, logtable, durtable, console)
 
     if job == None:
-        print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage"
+        print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage, --butlerPut, --butlerRead, --butlerWrite, --configureSlice, --initializeQueues, --initializeStages, --sliceVisit, --sliceVisitStage"
         sys.exit(10)
 
     monitor = EventMonitor(job)

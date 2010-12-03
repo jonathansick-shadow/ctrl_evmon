@@ -3,18 +3,42 @@ echo "using runid = "$1
 echo "using database = "$2
 date
 echo "loop"
-evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --loop
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --loop
 date
 echo "process"
-evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --process
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --process
 date
 echo "preprocess"
-evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --preprocess
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --preprocess
 date
 echo "postprocess"
-evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --postprocess
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --postprocess
 date
 echo "stage"
-evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --stage
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --stage
 date
+echo "butlerPut"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --butlerPut
+date
+echo "butlerRead"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --butlerRead
+date
+echo "butlerWrite"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --butlerWrite
+date
+echo "configureSlice"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --configureSlice
+date
+echo "initializeQueues"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --initializeQueues
+date
+echo "initializeStages"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --initializeStages
+date
+echo "sliceVisit"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --sliceVisit
+date
+#echo "sliceVisitStage"
+#evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations_srp --logtable Logs --sliceVisitStage
+#date
 echo "done!"
