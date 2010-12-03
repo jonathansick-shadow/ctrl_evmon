@@ -53,7 +53,7 @@ def SliceBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, con
     @return Job   a Job to be added to a Monitor
     """
     logstr = loggerselect % logtable
-    select = "%s where runId='%s' and log='%s' order by TIMESTAMP;" % \
+    select = "%s where runId='%s' and log='%s' and status !='unknown' order by TIMESTAMP;" % \
              (logstr, runid, logname)
 
     mysqlReader = DBReader(select, authinfo, dbname)
