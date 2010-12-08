@@ -46,18 +46,20 @@ public class SetTask implements Task {
 			String token = tokenizer.nextToken().trim();
 			String val = token;
 			if (token.charAt(0) == '$') {
-				if (token.contains(":")) {
+				int colonIndex = token.indexOf(':');
+				if (colonIndex > 0) {
 					// look up a message object
-					String[] str = token.split(":");
-					if (str[0].equals("$msg")) {
-						Object obj = msg.get(str[1]);
+					String prefix = token.substring(0, colonIndex);
+					String suffix = token.substring(colonIndex+1);
+					if (prefix.equals("$msg")) {
+						Object obj = msg.get(suffix);
 						if (obj == null)
 							val = null;
 						else
 							val = obj.toString();
 					} else {
-						MonitorMessage mm = (MonitorMessage) es.get(str[0]);
-						Object obj = mm.get(str[1]);
+						MonitorMessage mm = (MonitorMessage) es.get(prefix);
+						Object obj = mm.get(suffix);
 						if (obj == null)
 							val = null;
 						else
@@ -82,7 +84,6 @@ public class SetTask implements Task {
 			es.replace(result, eval);
 		}
 	}
-
     /**
      * Returns a String representation of the result and expression.  This is
      * the "raw" form, as given to the constructor, not the evaluated form.

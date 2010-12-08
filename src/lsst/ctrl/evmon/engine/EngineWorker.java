@@ -36,10 +36,10 @@ public class EngineWorker extends Thread {
      * This is the main execution method of this object, and where all
      * the work gets done.
      */
-    // Phanges in how Chains are processed either need to take this method
+    // Changes in how Chains are processed either need to take this method
     // into account.
     // Possible future changes include multiple Chains processing a single
-    // Reader's messages, spliting each Chain into it's own thread, etc.
+    // Reader's messages, splitting each Chain into it's own thread, etc.
 	public void runJob() {
 
 		EnvironmentList condList = new EnvironmentList();
@@ -55,9 +55,16 @@ public class EngineWorker extends Thread {
 		EnvironmentList replicationList = new EnvironmentList();
 		EnvironmentList removeList = new EnvironmentList();
 
-		System.out.println("waiting");
+		// System.out.println("waiting");
 
+		int temp_msgCount = 0;
 		while ((setCurrentMessage(input.getMessage())) != null) {
+			/*
+			temp_msgCount++;
+			// System.out.println(temp_msgCount);
+			if (temp_msgCount >= 2000)
+				; //System.out.println("boop");
+			*/
 			int size = condList.size();
 			for (int i = 0; i < size; i++) {
 				ChainEnvironment ce = condList.get(i);
@@ -168,7 +175,7 @@ public class EngineWorker extends Thread {
 */
 		}
 
-		System.out.println(this + "job done");
+		// System.out.println(this + "job done");
 	}
 	
 	private int runTasks(ChainEnvironment ce, EnvironmentList removeList, EnvironmentList replicationList) {

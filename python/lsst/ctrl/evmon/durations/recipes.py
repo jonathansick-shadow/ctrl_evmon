@@ -4,7 +4,7 @@ from lsst.ctrl.evmon import Chain, Condition, EventTask, Job, LogicalAnd
 from lsst.ctrl.evmon import LogicalCompare, NormalizeMessageFilter, Relation
 from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 
-from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter
+from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter, CsvWriter
 
 insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid, comment, workerid, userduration, systemduration, stagename) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s, %(comment)s, %(workerid)s, %(userduration)s, %(systemduration)s, %(stagename)s);"
 
@@ -393,29 +393,26 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
 
     return chain
 
-
 def consoleTask():
 
     template = Template()
+    template.put("id", Template.INT, "0")
     template.put("runid", Template.STRING, "$msg[0]:runId")
+    template.put("name", Template.STRING, "$msg[0]:LOG")
     template.put("workerid", Template.STRING, "$msg[0]:workerid")
-    template.put("log", Template.STRING, "$msg[0]:LOG")
+    template.put("stagename", Template.STRING, "$msg[0]:stagename")
     template.put("sliceid", Template.INT, "$msg[0]:sliceId")
+    template.put("duration", Template.INT, "$duration")
     template.put("hostid", Template.STRING, "$msg[0]:hostId")
     template.put("loopnum", Template.INT, "$msg[0]:loopnum")
-    template.put("pipeline", Template.STRING, "$msg[0]:pipeline")
-    template.put("startdate", Template.STRING, "$startdate")
     template.put("stageId", Template.STRING, "$msg[0]:stageId")
-    template.put("stagename", Template.STRING, "$msg[0]:stagename")
-    template.put("firsttime", Template.INT, "$msg[0]:PUBTIME")
-    template.put("secondtime", Template.INT, "$msg[1]:PUBTIME")
-    template.put("duration", Template.INT, "$duration")
+    template.put("pipeline", Template.STRING, "$msg[0]:pipeline")
     template.put("comment", Template.STRING, "$msg[1]:COMMENT")
-    template.put("workerid", Template.STRING,  "$msg[1]:workerid")
+    template.put("start", Template.STRING, "$startdate")
     template.put("userduration", Template.FLOAT, "$userduration")
     template.put("systemduration", Template.FLOAT, "$systemduration")
 
-    outputWriter = ConsoleWriter()
+    outputWriter = CsvWriter()
     eventTask = EventTask(outputWriter, template)
 
     return eventTask

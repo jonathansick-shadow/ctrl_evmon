@@ -152,18 +152,20 @@ public class EventStore {
 			return formatter.format(now);
 		}
 		if (key.charAt(0) == '$') {
-			// EventStore es = EventStore.getThreadInstance();
-			if (key.contains(":")) {
+			int colonIndex = key.indexOf(':');
+			if (colonIndex > 0) {
+				String prefix = key.substring(0, colonIndex);
+				String suffix = key.substring(colonIndex+1);
 				// look up a message object
-				String[] str = key.split(":");
-				String first = str[0];
+				//String[] str = key.split(":");
+				String first = prefix;
 				if (first.startsWith("$msg[")) {
-					MonitorMessage m = (MonitorMessage)get(str[0]);
-					Object obj = m.get(str[1]);
+					MonitorMessage m = (MonitorMessage)get(prefix);
+					Object obj = m.get(suffix);
 					if (obj == null) {
 						val = null;
 					} else {
-						val = m.get(str[1]).toString();
+						val = m.get(suffix).toString();
 					}
 				}
 /* old code that looked up the current message.				
@@ -183,4 +185,5 @@ public class EventStore {
 			val = key;
 		return val;
 	}
+	
 }
