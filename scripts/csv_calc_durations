@@ -1,0 +1,44 @@
+#!/bin/sh
+echo "using runid = "$1
+echo "using database = "$2
+date
+echo "loop"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --loop --console >$1.csv
+date
+echo "process"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --process --console >>$1.csv
+date
+echo "preprocess"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --preprocess --console >>$1.csv
+date
+echo "postprocess"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --postprocess --console >>$1.csv
+date
+echo "stage"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --stage --console >>$1.csv
+date
+echo "butlerPut"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --butlerPut --console >>$1.csv
+date
+echo "butlerRead"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --butlerRead --console >>$1.csv
+date
+echo "butlerWrite"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --butlerWrite --console >>$1.csv
+date
+echo "configureSlice"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --configureSlice --console >>$1.csv
+date
+echo "initializeQueues"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --initializeQueues --console >>$1.csv
+date
+echo "initializeStages"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --initializeStages --console >>$1.csv
+date
+echo "sliceVisit"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisit --console >>$1.csv
+date
+echo "sliceVisitStage"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisitStage --console >>$1.csv
+date
+echo "done!"

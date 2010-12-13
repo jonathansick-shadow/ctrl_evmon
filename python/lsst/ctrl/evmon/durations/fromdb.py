@@ -21,6 +21,24 @@ def DBReader(query, authinfo, dbname):
     out.setSelectString(query)
     return out
 
+def GenericBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, console):
+    """
+    calculate the durations for a particular block executed within a generic block
+
+    @param runid       the run identifier for the run to process
+    @param logname     the name of log that contains the start and stop
+                          messages
+    @param authinfo    the database authorization data returned from
+                          db.readAuthInfo()
+
+    @return Job   a Job to be added to a Monitor
+    """
+    logstr = loggerselect % logtable
+    select = "%s where log='%s' order by TIMESTAMP;" % (logstr, logname)
+
+    mysqlReader = DBReader(select, authinfo, dbname)
+    chain = GenericBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
+    return Job(mysqlReader, chain)    
 
 def SliceBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, console):
     """
@@ -35,7 +53,7 @@ def SliceBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, con
     @return Job   a Job to be added to a Monitor
     """
     logstr = loggerselect % logtable
-    select = "%s where runId='%s' and log='%s' order by TIMESTAMP;" % \
+    select = "%s where runId='%s' and log='%s' and status !='unknown' order by TIMESTAMP;" % \
              (logstr, runid, logname)
 
     mysqlReader = DBReader(select, authinfo, dbname)

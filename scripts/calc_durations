@@ -17,4 +17,28 @@ date
 echo "stage"
 evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --stage
 date
+echo "butlerPut"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --butlerPut
+date
+echo "butlerRead"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --butlerRead
+date
+echo "butlerWrite"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --butlerWrite
+date
+echo "configureSlice"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --configureSlice
+date
+echo "initializeQueues"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --initializeQueues
+date
+echo "initializeStages"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --initializeStages
+date
+echo "sliceVisit"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisit
+date
+echo "sliceVisitStage"
+evmon BasicDurations.py --runid $1 --dbname $2 --durtable Durations --logtable Logs --sliceVisitStage
+date
 echo "done!"

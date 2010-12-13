@@ -26,7 +26,7 @@ public class LogicalCompare implements LogicalExpression {
 	// TODO: This needs to be reworked to avoid unnecessarily converting
 	// a numeric value into a string.
     /**
-     * Evalute the current message
+     * Evaluate the current message
      * @param ce ChainEnvironment to evaluate against
      * @param msg current message to evaluate against
      * @returns true  if evaluation of comparison is true, otherwise returns false
@@ -42,7 +42,13 @@ public class LogicalCompare implements LogicalExpression {
 		if (value.equals(Span.INDEX)) {
 			rightSide = Integer.toString(ce.getSpanIndex());
 		} else {
-			rightSide = lookup(es, msg, value.toString());
+			String val = value.toString();
+			if (val.charAt(0) == '$') {
+				rightSide = lookup(es, msg, value.toString());
+			}else {
+				rightSide = val;
+			}
+
 			if (rightSide == null) {
 				System.err.println("LogicalCompare: Error: \""+value.toString()+"\" does not exist");
 				System.exit(100);
@@ -53,20 +59,32 @@ public class LogicalCompare implements LogicalExpression {
 	}
 	
     /*
-     * lookup attemps to retrieve the value of token, using the EventStore
+     * lookup attempts to retrieve the value of token, using the EventStore
      * or message.
      */
 	private String lookup(EventStore es, MonitorMessage msg, String token) {
 		if (token.startsWith("$msg:")) {
+			/*
 			String[] str = token.split(":");
 			String val = null;
 			Object obj = msg.get(str[1]);
+			*/
+			String val = null;
+			String str = token.substring(5);
+			Object obj = msg.get(str);
+
 			if (obj != null) {
 				val = obj.toString();
 			}
 			return val;
 		}
 		return es.lookup(token);
+		/*
+		if (token.charAt(0) == '$')
+			return es.lookup(token);
+		else
+			return token;
+		*/
 	}
 	
     /*
