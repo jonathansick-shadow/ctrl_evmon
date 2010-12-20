@@ -83,7 +83,10 @@ public class MysqlReader implements MessageReader {
 
 		if (resultSet == null) {
 			try {
-				statement = conn.createStatement();
+                // tell the driver to do this as a streaming result set
+				statement = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+				statement.setFetchSize(Integer.MIN_VALUE);
+
 				resultSet = statement.executeQuery(query);
 				meta = resultSet.getMetaData();
 				columns = meta.getColumnCount();
