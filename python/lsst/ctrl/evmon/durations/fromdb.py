@@ -5,7 +5,8 @@ from lsst.ctrl.evmon import Job, NormalizeMessageFilter
 from lsst.ctrl.evmon.input import LsstEventReader, MysqlReader
 from recipes import *
 
-loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime, stagename from %s";
+#loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime, stagename from %s";
+loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime, stagename from %s";
 
 def DBReader(query, authinfo, dbname):
     """
@@ -17,7 +18,7 @@ def DBReader(query, authinfo, dbname):
     """
     out = MysqlReader(authinfo["host"], dbname,
                       authinfo['user'], authinfo['password'])
-    out.setFilter(NormalizeMessageFilter("custom", ":", ";"))
+    #out.setFilter(NormalizeMessageFilter("custom", ":", ";"))
     out.setSelectString(query)
     return out
 
@@ -63,7 +64,7 @@ def SliceBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, con
 def PipelineBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, console):
 
     logstr = loggerselect % logtable
-    select = "%s where runid='%s' and sliceId=-1 and log='%s' order by TIMESTAMP;" % (logstr, runid, logname)
+    select = "%s where runid='%s' and sliceId=-1 and log='%s' and status != 'unknown' order by TIMESTAMP;" % (logstr, runid, logname)
     mysqlReader = DBReader(select, authinfo, dbname)
     chain = PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
     return Job(mysqlReader, chain)
