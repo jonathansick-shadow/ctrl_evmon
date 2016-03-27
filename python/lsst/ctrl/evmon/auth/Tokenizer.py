@@ -2,6 +2,7 @@ import os
 import string
 import Token
 
+
 class Tokenizer:
 
     COLON = ':'
@@ -21,7 +22,6 @@ class Tokenizer:
         self.eof = False
         self.totalChars = len(self.text)
 
-
     def getToken(self):
         if self.eof:
             return None
@@ -30,7 +30,7 @@ class Tokenizer:
         while self.text[x] == '#':
             while self.text[x] != '\n':
                 x = x + 1
-            x = x + 1 # skip \n too
+            x = x + 1  # skip \n too
             if x >= self.totalChars:
                 self.eof = True
                 return None
@@ -60,7 +60,7 @@ class Tokenizer:
             if x >= self.totalChars:
                 self.eof = True
             return Token.Token(self.CLOSE_BRACE, "}")
-        while self.text[x] in (string.letters + string.digits + '.' ):
+        while self.text[x] in (string.letters + string.digits + '.'):
             str = str + self.text[x]
             x = x + 1
             self.curPos = x

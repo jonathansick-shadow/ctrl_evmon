@@ -1,15 +1,19 @@
-import sys, os, re
+import sys
+import os
+import re
 
 from lsst.ctrl.evmon import Job, NormalizeMessageFilter
 
 from lsst.ctrl.evmon.input import LsstEventReader, MysqlReader
 from recipes import *
 
+
 def LogEventStreamReader(broker, channel="LSSTLogging"):
     """
     return a reader that will read the Log Event channel for its inputs
     """
     return LsstEventReader(channel, broker)
+
 
 def SliceBlockDuration(runid, logname, authinfo, broker,
                        channel="LSSTLogging", destination="durations"):
@@ -27,8 +31,9 @@ def SliceBlockDuration(runid, logname, authinfo, broker,
     @return Job   a Job to be added to a Monitor
     """
     chain = SliceBlockDurationChain(runid, logname, authinfo, destination)
-    return Job(LogEventStreamReader(broker, channel), chain)    
-    
+    return Job(LogEventStreamReader(broker, channel), chain)
+
+
 def PipelineBlockDuration(runid, logname, authinfo, broker,
                           channel="LSSTLogging", destination="durations"):
     """
@@ -47,7 +52,8 @@ def PipelineBlockDuration(runid, logname, authinfo, broker,
     chain = PipelineBlockDurationChain(runid, logname, authinfo, destination)
     return Job(LogEventStreamReader(broker, channel), chain)
 
-def ProcessDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def ProcessDuration(runid, authinfo, broker, channel="LSSTLogging",
                     destination="durations"):
     """
     calculate the time required to execute the process() function for each
@@ -64,7 +70,8 @@ def ProcessDuration(runid, authinfo, broker, channel="LSSTLogging",
     return SliceBlockDuration(runid, 'harness.slice.visit.stage.process',
                               authinfo, broker, channel, destination)
 
-def EventWaitDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def EventWaitDuration(runid, authinfo, broker, channel="LSSTLogging",
                       destination="durations"):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
@@ -76,10 +83,11 @@ def EventWaitDuration(runid, authinfo, broker, channel="LSSTLogging",
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid,
-                         'harness.pipeline.visit.stage.handleEvents.eventwait',
+                                 'harness.pipeline.visit.stage.handleEvents.eventwait',
                                  authinfo, broker, channel, destination)
 
-def SliceEventWaitDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def SliceEventWaitDuration(runid, authinfo, broker, channel="LSSTLogging",
                            destination="durations"):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
@@ -91,10 +99,11 @@ def SliceEventWaitDuration(runid, authinfo, broker, channel="LSSTLogging",
     @return Job   a Job to be added to a Monitor
     """
     return SliceBlockDuration(runid,
-                            'harness.slice.visit.stage.handleEvents.eventwait',
+                              'harness.slice.visit.stage.handleEvents.eventwait',
                               authinfo, broker, channel, destination)
 
-def StageDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def StageDuration(runid, authinfo, broker, channel="LSSTLogging",
                   destination="durations"):
     """
     calculate the time required to complete each stage within the 
@@ -110,7 +119,8 @@ def StageDuration(runid, authinfo, broker, channel="LSSTLogging",
     return PipelineBlockDuration(runid, 'harness.pipeline.visit.stage',
                                  authinfo, broker, channel, destination)
 
-def PreprocessDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def PreprocessDuration(runid, authinfo, broker, channel="LSSTLogging",
                        destination="durations"):
     """
     calculate the time required to complete the preprocess function for
@@ -128,7 +138,8 @@ def PreprocessDuration(runid, authinfo, broker, channel="LSSTLogging",
                                  'harness.pipeline.visit.stage.preprocess',
                                  authinfo, broker, channel, destination)
 
-def PostprocessDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def PostprocessDuration(runid, authinfo, broker, channel="LSSTLogging",
                         destination="durations"):
     """
     calculate the time required to complete the preprocess function for
@@ -146,7 +157,8 @@ def PostprocessDuration(runid, authinfo, broker, channel="LSSTLogging",
                                  'harness.pipeline.visit.stage.postprocess',
                                  authinfo, broker, channel, destination)
 
-def LoopDuration(runid, authinfo, broker, channel="LSSTLogging", 
+
+def LoopDuration(runid, authinfo, broker, channel="LSSTLogging",
                  destination="durations"):
     """
     calculate the time required to complete each visit loop within the 
@@ -163,4 +175,4 @@ def LoopDuration(runid, authinfo, broker, channel="LSSTLogging",
 
 
 
-    
+

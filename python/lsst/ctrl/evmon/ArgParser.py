@@ -2,7 +2,10 @@ import sys
 
 # this is a really simple command line argument parser, since version of jython
 # we're using doesn't have access to optparse or argparse
+
+
 class ArgParser:
+
     def __init__(self, info):
         self.info = info
         self.flags = {}
@@ -45,11 +48,11 @@ class ArgParser:
                     x += 1
                     if x <= total:
                         if args[x].startswith("--"):
-                            print opt,": missing argument"
+                            print opt, ": missing argument"
                         else:
                             self.options[opt] = args[x]
                     else:
-                        print opt,": missing argument"
+                        print opt, ": missing argument"
                         sys.exit(0)
                     break
             x += 1

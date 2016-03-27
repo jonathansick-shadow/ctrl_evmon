@@ -1,9 +1,9 @@
 chain = Chain()
 
-cond1 = Condition("$msg:info", Relation.STARTS_WITH,	"Starting Stage")
+cond1 = Condition("$msg:info", Relation.STARTS_WITH, "Starting Stage")
 chain.addLink(cond1)
 
-span = Span("1",3)
+span = Span("1", 3)
 
 
 comp1 = LogicalCompare("$msg:info", Relation.STARTS_WITH, "Starting node")
@@ -31,7 +31,7 @@ reqs3 = Condition(logicalAnd2, span)
 reqs3.setException(exceptionTask, 5000L)
 chain.addLink(reqs3)
 
-setTask = SetTask("$delta","$msg[2]:micros - $msg[1]:micros")
+setTask = SetTask("$delta", "$msg[2]:micros - $msg[1]:micros")
 chain.addLink(setTask)
 
 template = Template()

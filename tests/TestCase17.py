@@ -8,7 +8,7 @@ chain = Chain()
 query = "INSERT INTO events.logger(micros, hostid, sliceid, level, log, custom, comment, runid) values({$msg:micros}, {$msg:hostid}, {$msg:sliceid}, {$msg:level}, {$msg:log}, {$msg:custom}, {$msg:comment}, {$msg:runid});"
 
 mysqlWriter = MysqlWriter("localhost", "events", "srp", "srp123")
-            
+
 mysqlTask = MysqlTask(mysqlWriter, query)
 chain.addLink(mysqlTask)
 

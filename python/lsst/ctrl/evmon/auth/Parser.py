@@ -3,12 +3,12 @@ import string
 import Token
 import Tokenizer
 
+
 class Parser:
 
     def __init__(self, filename):
         self.t = Tokenizer.Tokenizer(filename)
         self.dict = {}
-            
 
     def getWord(self):
         token = self.t.getToken()
@@ -18,10 +18,10 @@ class Parser:
         value = token.getValue()
         type = token.getType()
         if type != 'W':
-            print "expected keyword, got ",value
+            print "expected keyword, got ", value
             return None
         return value
-        
+
     def getColon(self):
         token = self.t.getToken()
         if token == None:
@@ -30,14 +30,13 @@ class Parser:
         value = token.getValue()
         type = token.getType()
         if type != ':':
-            print "expected ':' got ",value
+            print "expected ':' got ", value
             return None
         return value
 
     def getToken(self):
         token = self.t.getToken()
         return token
-        
 
     def resolve(self):
         result = []
@@ -47,18 +46,17 @@ class Parser:
                 return result
             if word.getValue() == '}':
                 return result
-            #print "word = ",word
+            # print "word = ",word
             colon = self.getColon()
             if colon == None:
-               return result
+                return result
             token = self.getToken()
             if token.getValue() == '{':
                 d1 = self.resolve()
-                
-                result.append([word.getValue() ,  d1])
+
+                result.append([word.getValue(), d1])
             else:
-                result.append([word.getValue() , token.getValue()])
-        
+                result.append([word.getValue(), token.getValue()])
 
 
 if __name__ == "__main__":

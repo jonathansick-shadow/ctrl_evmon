@@ -11,8 +11,8 @@ chain.addLink(setTask)
 
 template = Template()
 
-template.put ("INFO", Template.STRING, "Results for delta")
-template.put ("DELTA", Template.INT, "$result")
+template.put("INFO", Template.STRING, "Results for delta")
+template.put("DELTA", Template.INT, "$result")
 
 writer = LsstEventWriter("monitor")
 eventTask = EventTask(writer, template)

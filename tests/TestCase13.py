@@ -1,9 +1,9 @@
 chain = Chain()
 
-cond1 = Condition("$msg:info", Relation.STARTS_WITH,	"Starting Stage")
+cond1 = Condition("$msg:info", Relation.STARTS_WITH, "Starting Stage")
 chain.addLink(cond1)
 
-span = Span(1,3)
+span = Span(1, 3)
 comp1 = LogicalCompare("$msg:info", Relation.STARTS_WITH, "Starting node")
 comp2 = LogicalCompare("$msg:CPU", Relation.EQUALS, Span.INDEX)
 comp3 = LogicalCompare("$msg:value", Relation.GREATER_THAN, 0)
@@ -24,7 +24,7 @@ logicalAnd2 = LogicalAnd(comp4, comp5)
 cond3 = Condition(logicalAnd2, span)
 chain.addLink(cond3)
 
-setTask = SetTask("$delta","$msg[2]:micros - $msg[1]:micros")
+setTask = SetTask("$delta", "$msg[2]:micros - $msg[1]:micros")
 chain.addLink(setTask)
 
 template = Template()
@@ -34,7 +34,7 @@ template.put("DELTA", Template.INT, "$delta")
 lsstWriter = LsstEventWriter("warning")
 eventTask = EventTask(lsstWriter, template)
 chain.addLink(eventTask)
-	
+
 cond4 = Condition("$msg:info", Relation.STARTS_WITH, "Ending Stage")
 chain.addLink(cond4)
 

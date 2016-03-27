@@ -17,10 +17,10 @@ logicalAnd = LogicalAnd(comp1, comp2)
 reqs2 = Condition(logicalAnd)
 reqs2.setException(exceptionTask, 5000L)
 chain.addLink(reqs2)
-        
+
 setTask = SetTask("$result", "$msg[1]:micros - $msg[0]:micros")
 chain.addLink(setTask)
-        
+
 template = Template()
 template.put("info", Template.STRING, "Pipeline time in microseconds")
 template.put("micros", Template.INT, "$result")

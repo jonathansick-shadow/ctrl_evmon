@@ -1,10 +1,13 @@
-import sys, os, re
+import sys
+import os
+import re
 from lsst.ctrl.evmon import ArgParser
 
 from lsst.ctrl.evmon import EventMonitor
 from lsst.ctrl.evmon.durations import fromdb
 
 from lsst.ctrl.evmon.auth import DbAuth
+
 
 def main():
     host = "lsst10.ncsa.uiuc.edu"
@@ -84,7 +87,6 @@ def main():
     if durtable == None:
         durtable = "Durations"
 
-        
     dbAuth = DbAuth.DbAuth()
     authinfo = dbAuth.readAuthInfo(host)
 
@@ -109,21 +111,29 @@ def main():
     elif stage == True:
         job = fromdb.StageDuration(runid, authinfo, dbname, logtable, durtable, console)
     elif butlerPut == True:
-        job = fromdb.GenericBlockDuration(runid, "daf.persistence.butler.put", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.GenericBlockDuration(runid, "daf.persistence.butler.put",
+                                          authinfo, dbname, logtable, durtable, console)
     elif butlerRead == True:
-        job = fromdb.GenericBlockDuration(runid, "daf.persistence.butler.read", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.GenericBlockDuration(runid, "daf.persistence.butler.read",
+                                          authinfo, dbname, logtable, durtable, console)
     elif configureSlice == True:
-        job = fromdb.SliceBlockDuration(runid, "harness.slice.configureSlice", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.configureSlice",
+                                        authinfo, dbname, logtable, durtable, console)
     elif initializeQueues == True:
-        job = fromdb.SliceBlockDuration(runid, "harness.slice.initializeQueues", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.initializeQueues",
+                                        authinfo, dbname, logtable, durtable, console)
     elif initializeStages == True:
-        job = fromdb.SliceBlockDuration(runid, "harness.slice.initializeStages", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.initializeStages",
+                                        authinfo, dbname, logtable, durtable, console)
     elif butlerWrite == True:
-        job = fromdb.SliceBlockDuration(runid, "harness.slice.iostage.output.write_using_butler", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.SliceBlockDuration(
+            runid, "harness.slice.iostage.output.write_using_butler", authinfo, dbname, logtable, durtable, console)
     elif sliceVisit == True:
-        job = fromdb.SliceBlockDuration(runid, "harness.slice.visit", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.visit", authinfo,
+                                        dbname, logtable, durtable, console)
     elif sliceVisitStage == True:
-        job = fromdb.SliceBlockDuration(runid, "harness.slice.visit.stage", authinfo, dbname, logtable, durtable, console)
+        job = fromdb.SliceBlockDuration(runid, "harness.slice.visit.stage",
+                                        authinfo, dbname, logtable, durtable, console)
 
     if job == None:
         print "console argument specified; must specify ONE of --loop, --process, --preprocess, --postprocess, --stage, --butlerPut, --butlerRead, --butlerWrite, --configureSlice, --initializeQueues, --initializeStages, --sliceVisit, --sliceVisitStage"

@@ -31,7 +31,7 @@ writer = LsstEventWriter("info", "fester.ncsa.uiuc.edu")
 eventTask = EventTask(writer, template)
 chain.addLink(eventTask)
 
-reader = LsstEventReader("monitor")        
+reader = LsstEventReader("monitor")
 job = Job(reader, chain)
 
 engine = Engine(simple)

@@ -1,4 +1,6 @@
-import sys, os, re
+import sys
+import os
+import re
 
 from lsst.ctrl.evmon import Job, NormalizeMessageFilter
 
@@ -6,7 +8,8 @@ from lsst.ctrl.evmon.input import LsstEventReader, MysqlReader
 from recipes import *
 
 #loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, custom, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime, stagename from %s";
-loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime, stagename from %s";
+loggerselect = "SELECT workerid, DATE, TIMESTAMP, loopnum, id, stageId, sliceId, runId, level, LOG, COMMENT, hostId, STATUS, pipeline, PUBTIME, usertime, systemtime, stagename from %s"
+
 
 def DBReader(query, authinfo, dbname):
     """
@@ -21,6 +24,7 @@ def DBReader(query, authinfo, dbname):
     #out.setFilter(NormalizeMessageFilter("custom", ":", ";"))
     out.setSelectString(query)
     return out
+
 
 def GenericBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, console):
     """
@@ -39,7 +43,8 @@ def GenericBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, c
 
     mysqlReader = DBReader(select, authinfo, dbname)
     chain = GenericBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
-    return Job(mysqlReader, chain)    
+    return Job(mysqlReader, chain)
+
 
 def SliceBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, console):
     """
@@ -59,15 +64,18 @@ def SliceBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, con
 
     mysqlReader = DBReader(select, authinfo, dbname)
     chain = SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
-    return Job(mysqlReader, chain)    
-    
+    return Job(mysqlReader, chain)
+
+
 def PipelineBlockDuration(runid, logname, authinfo, dbname, logtable, durtable, console):
 
     logstr = loggerselect % logtable
-    select = "%s where runid='%s' and sliceId=-1 and log='%s' and status != 'unknown' order by TIMESTAMP;" % (logstr, runid, logname)
+    select = "%s where runid='%s' and sliceId=-1 and log='%s' and status != 'unknown' order by TIMESTAMP;" % (
+        logstr, runid, logname)
     mysqlReader = DBReader(select, authinfo, dbname)
     chain = PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
     return Job(mysqlReader, chain)
+
 
 def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo, dbname, logtable, durtable,
                      blockName=None):
@@ -95,7 +103,7 @@ def AppBlockDuration(runid, stageid, logname, startComm, endComm, authinfo, dbna
     mysqlReader = DBReader(select, authinfo, dbname)
     chain = AppBlockDurationChain(runid, stageid, logname, logtable, durtable, startComm, endComm,
                                   authinfo, dbname, durtable, "AppBlock", blockName)
-    return Job(mysqlReader, chain)    
+    return Job(mysqlReader, chain)
 
 
 def ProcessDuration(runid, authinfo, dbname, logtable, durtable, console):
@@ -112,6 +120,7 @@ def ProcessDuration(runid, authinfo, dbname, logtable, durtable, console):
     return SliceBlockDuration(runid, 'harness.slice.visit.stage.process',
                               authinfo, dbname, logtable, durtable, console)
 
+
 def EventWaitDuration(runid, authinfo, dbname, logtable, durtable, console):
     """
     calculate the time spent in a Slice waiting for an event to arrive.  
@@ -123,8 +132,9 @@ def EventWaitDuration(runid, authinfo, dbname, logtable, durtable, console):
     @return Job   a Job to be added to a Monitor
     """
     return PipelineBlockDuration(runid,
-                         'harness.pipeline.visit.stage.handleEvents.eventwait',
+                                 'harness.pipeline.visit.stage.handleEvents.eventwait',
                                  authinfo, dbname, logtable, durtable, console)
+
 
 def SliceEventWaitDuration(runid, authinfo, dbname, logtable, durtable, console):
     """
@@ -137,8 +147,9 @@ def SliceEventWaitDuration(runid, authinfo, dbname, logtable, durtable, console)
     @return Job   a Job to be added to a Monitor
     """
     return SliceBlockDuration(runid,
-                            'harness.slice.visit.stage.handleEvents.eventwait',
+                              'harness.slice.visit.stage.handleEvents.eventwait',
                               authinfo, dbname, logtable, durtable, console)
+
 
 def StageDuration(runid, authinfo, dbname, logtable, durtable, console):
     """
@@ -152,6 +163,7 @@ def StageDuration(runid, authinfo, dbname, logtable, durtable, console):
     """
     return PipelineBlockDuration(runid, 'harness.pipeline.visit.stage',
                                  authinfo, dbname, logtable, durtable, console)
+
 
 def PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console):
     """
@@ -168,6 +180,7 @@ def PreprocessDuration(runid, authinfo, dbname, logtable, durtable, console):
                                  'harness.pipeline.visit.stage.preprocess',
                                  authinfo, dbname, logtable, durtable, console)
 
+
 def PostprocessDuration(runid, authinfo, dbname, logtable, durtable, console):
     """
     calculate the time required to complete the preprocess function for
@@ -182,6 +195,7 @@ def PostprocessDuration(runid, authinfo, dbname, logtable, durtable, console):
     return PipelineBlockDuration(runid,
                                  'harness.pipeline.visit.stage.postprocess',
                                  authinfo, dbname, logtable, durtable, console)
+
 
 def LoopDuration(runid, authinfo, dbname, logtable, durtable, console):
     """

@@ -1,4 +1,6 @@
-import sys, os, re
+import sys
+import os
+import re
 
 from lsst.ctrl.evmon import Chain, Condition, EventTask, Job, LogicalAnd
 from lsst.ctrl.evmon import LogicalCompare, NormalizeMessageFilter, Relation
@@ -7,6 +9,7 @@ from lsst.ctrl.evmon import SetTask, MysqlTask, Template, EventMonitor
 from lsst.ctrl.evmon.output import ConsoleWriter, MysqlWriter, CsvWriter
 
 insertTmpl = "INSERT INTO %(dbname)s.%(durtable)s (runid, name, sliceid, duration, hostid, loopnum, pipeline, start, stageid, comment, workerid, userduration, systemduration, stagename) values (%(runid)s, %(name)s, %(sliceid)s, %(duration)s, %(hostid)s, %(loopnum)s, %(pipeline)s, %(date)s, %(stageid)s, %(comment)s, %(workerid)s, %(userduration)s, %(systemduration)s, %(stagename)s);"
+
 
 def DBWriteTask(data, authinfo, dbname, durtable):
     """
@@ -39,6 +42,7 @@ def DBWriteTask(data, authinfo, dbname, durtable):
                          authinfo["user"], authinfo["password"])
     return MysqlTask(writer, insert)
 
+
 def GenericBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
     """
     return the Chain of conditions and tasks required to calculation the
@@ -62,33 +66,33 @@ def GenericBlockDurationChain(runid, logname, authinfo, dbname, durtable, consol
     chain.addLink(SetTask("$startdate", "$msg:DATE"))
 
     # find the end of the trace block
-    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end");       
-    comp2 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
-    
+    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end")
+    comp2 = LogicalCompare("$msg:workerid", Relation.EQUALS, "$msg[0]:workerid")
+
     recmatch = LogicalAnd(comp1, comp2)
-    chain.addLink(Condition(recmatch));
+    chain.addLink(Condition(recmatch))
 
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
     chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
     chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
     chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
-    
+
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runId}",
-                     "name":     "{$msg:LOG}",
-                     "sliceid":  "{$msg:sliceId}",
-                     "duration": "{$duration}", 
-                     "hostid":   "{$msg:hostId}", 
-                     "loopnum":  "{$loopnum}", 
-                     "pipeline": "{$msg:pipeline}", 
-                     "date":     "{$startdate}",
-                     "stageid":  "{$msg:stageId}",
-                     "workerid":  "{$msg:workerid}",
-                     "userduration": "{$userduration}",
-                     "systemduration": "{$systemduration}",
-                     "stagename": "{$msg:stagename}",
-                     "comment":  "{$msg:COMMENT}"  }
+    insertValues = {"runid": "{$msg:runId}",
+                    "name": "{$msg:LOG}",
+                    "sliceid": "{$msg:sliceId}",
+                    "duration": "{$duration}",
+                    "hostid": "{$msg:hostId}",
+                    "loopnum": "{$loopnum}",
+                    "pipeline": "{$msg:pipeline}",
+                    "date": "{$startdate}",
+                    "stageid": "{$msg:stageId}",
+                    "workerid": "{$msg:workerid}",
+                    "userduration": "{$userduration}",
+                    "systemduration": "{$systemduration}",
+                    "stagename": "{$msg:stagename}",
+                    "comment": "{$msg:COMMENT}"}
 
     if console == True:
         eventTask2 = consoleTask()
@@ -97,6 +101,8 @@ def GenericBlockDurationChain(runid, logname, authinfo, dbname, durtable, consol
         chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
 
     return chain
+
+
 def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
     """
     return the Chain of conditions and tasks required to calculation the
@@ -120,43 +126,43 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
     chain.addLink(SetTask("$startdate", "$msg:DATE"))
 
     # find the end of the trace block
-    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end");       
+    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end")
     comp2 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "$msg[0]:sliceId")
     comp3 = LogicalCompare("$msg:runId", Relation.EQUALS, "$msg[0]:runId")
     comp4 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$msg[0]:loopnum")
-    comp5 = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
+    comp5 = LogicalCompare("$msg:pipeline", Relation.EQUALS, "$msg[0]:pipeline")
     comp6 = LogicalCompare("$msg:stageId", Relation.EQUALS, "$msg[0]:stageId")
-    comp7 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
-    
+    comp7 = LogicalCompare("$msg:workerid", Relation.EQUALS, "$msg[0]:workerid")
+
     recmatch = LogicalAnd(comp1, comp2)
     recmatch.add(comp3)
     recmatch.add(comp4)
     recmatch.add(comp5)
     recmatch.add(comp6)
     recmatch.add(comp7)
-    chain.addLink(Condition(recmatch));
+    chain.addLink(Condition(recmatch))
 
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
     chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
     chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
     chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
-    
+
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runId}",
-                     "name":     "{$msg:LOG}",
-                     "sliceid":  "{$msg:sliceId}",
-                     "duration": "{$duration}", 
-                     "hostid":   "{$msg:hostId}", 
-                     "loopnum":  "{$loopnum}", 
-                     "pipeline": "{$msg:pipeline}", 
-                     "date":     "{$startdate}",
-                     "stageid":  "{$msg:stageId}",
-                     "workerid":  "{$msg:workerid}",
-                     "userduration": "{$userduration}",
-                     "systemduration": "{$systemduration}",
-                     "stagename": "{$msg:stagename}",
-                     "comment":  "{$msg:COMMENT}"  }
+    insertValues = {"runid": "{$msg:runId}",
+                    "name": "{$msg:LOG}",
+                    "sliceid": "{$msg:sliceId}",
+                    "duration": "{$duration}",
+                    "hostid": "{$msg:hostId}",
+                    "loopnum": "{$loopnum}",
+                    "pipeline": "{$msg:pipeline}",
+                    "date": "{$startdate}",
+                    "stageid": "{$msg:stageId}",
+                    "workerid": "{$msg:workerid}",
+                    "userduration": "{$userduration}",
+                    "systemduration": "{$systemduration}",
+                    "stagename": "{$msg:stagename}",
+                    "comment": "{$msg:COMMENT}"}
 
     if console == True:
         eventTask2 = consoleTask()
@@ -166,8 +172,8 @@ def SliceBlockDurationChain(runid, logname, authinfo, dbname, durtable, console)
 
     return chain
 
-def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
 
+def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, console):
     """
     calculate the durations for a particular block executed within Pipeline
     (master) process.
@@ -190,43 +196,43 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, conso
     chain.addLink(SetTask("$startdate", "$msg:DATE"))
 
     # find the end of the trace block
-    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end");       
+    comp1 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end")
     comp2 = LogicalCompare("$msg:sliceId", Relation.EQUALS, -1)
     comp3 = LogicalCompare("$msg:runId", Relation.EQUALS, "$msg[0]:runId")
     comp4 = LogicalCompare("$msg:loopnum", Relation.EQUALS, "$msg[0]:loopnum")
-    comp5 = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
+    comp5 = LogicalCompare("$msg:pipeline", Relation.EQUALS, "$msg[0]:pipeline")
     comp6 = LogicalCompare("$msg:stageId", Relation.EQUALS, "$msg[0]:stageId")
-    comp7 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
-    
+    comp7 = LogicalCompare("$msg:workerid", Relation.EQUALS, "$msg[0]:workerid")
+
     recmatch = LogicalAnd(comp1, comp2)
     recmatch.add(comp3)
     recmatch.add(comp4)
     recmatch.add(comp5)
     recmatch.add(comp6)
     recmatch.add(comp7)
-    chain.addLink(Condition(recmatch));
+    chain.addLink(Condition(recmatch))
 
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
     chain.addLink(SetTask("$userduration", "$msg[1]:usertime-$msg[0]:usertime"))
     chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
     chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
-    
+
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runId}",
-                     "name":     "{$msg:LOG}",
-                     "sliceid":  "{$msg:sliceId}",
-                     "duration": "{$duration}", 
-                     "hostid":   "{$msg:hostId}", 
-                     "loopnum":  "{$loopnum}", 
-                     "pipeline": "{$msg:pipeline}", 
-                     "date":     "{$startdate}",
-                     "stageid":  "{$msg:stageId}",
-                     "workerid":  "{$msg:workerid}",
-                     "userduration": "{$userduration}",
-                     "systemduration": "{$systemduration}",
-                     "stagename": "{$msg:stagename}",
-                     "comment":  "{$msg:COMMENT}"  }
+    insertValues = {"runid": "{$msg:runId}",
+                    "name": "{$msg:LOG}",
+                    "sliceid": "{$msg:sliceId}",
+                    "duration": "{$duration}",
+                    "hostid": "{$msg:hostId}",
+                    "loopnum": "{$loopnum}",
+                    "pipeline": "{$msg:pipeline}",
+                    "date": "{$startdate}",
+                    "stageid": "{$msg:stageId}",
+                    "workerid": "{$msg:workerid}",
+                    "userduration": "{$userduration}",
+                    "systemduration": "{$systemduration}",
+                    "stagename": "{$msg:stagename}",
+                    "comment": "{$msg:COMMENT}"}
 
     if console == True:
         eventTask2 = consoleTask()
@@ -236,7 +242,8 @@ def PipelineBlockDurationChain(runid, logname, authinfo, dbname, durtable, conso
 
     return chain
 
-def AppBlockDurationChain(runid, stageid, logname, startComm, endComm, 
+
+def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
                           authinfo, dbname, durtable, console, blockName=None):
     """
     calculate the duration of application level block.  This requires knowing
@@ -258,7 +265,7 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
     """
     if blockName is None:
         blockName = re.sub(r'\s*[sS]tart(ed|ing)?\s*', '', startComm)
-        
+
     chain = Chain()
 
     # find the start of the process to get some metadata
@@ -267,7 +274,7 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
     comp2 = LogicalCompare("$msg:stageId", Relation.EQUALS, stageid)
     chain.addLink(LogicalAnd(comp1, comp2))
     chain.addLink(SetTask("$stagestart", "$msg:PUBTIME"))
-    
+
     # find the start of the trace block
     comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS, logname)
     comp2 = LogicalCompare("$msg:COMMENT", Relation.EQUALS, startComm)
@@ -288,11 +295,11 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
 
     # find the end of the trace block
     comp1 = LogicalCompare("$msg:LOG", Relation.EQUALS, logname)
-    comp2 = LogicalCompare("$msg:COMMENT", Relation.EQUALS, endComm);       
+    comp2 = LogicalCompare("$msg:COMMENT", Relation.EQUALS, endComm)
     comp3 = LogicalCompare("$msg:sliceId", Relation.EQUALS, "$msg[0]:sliceId")
     comp4 = LogicalCompare("$msg:runId", Relation.EQUALS, "$msg[0]:runId")
-    comp5 = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
-    
+    comp5 = LogicalCompare("$msg:pipeline", Relation.EQUALS, "$msg[0]:pipeline")
+
     recmatch = LogicalAnd(comp1, comp2)
     recmatch.add(comp3)
     recmatch.add(comp4)
@@ -304,22 +311,22 @@ def AppBlockDurationChain(runid, stageid, logname, startComm, endComm,
     chain.addLink(SetTask("$userduration", "$userduration*1000.0"))
     chain.addLink(SetTask("$systemduration", "$msg[1]:systemtime-$msg[0]:systemtime"))
     chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
-    
+
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runId}",
-                     "name":     blockName,
-                     "sliceid":  "{$msg:sliceId}",
-                     "duration": "{$duration}", 
-                     "hostid":   "{$msg:hostId}", 
-                     "loopnum":  "{$msg[0]:loopnum}", 
-                     "pipeline": "{$msg:pipeline}", 
-                     "date":     "{$startdate}",
-                     "stageid":  "{$msg[0]:stageId}",
-                     "workerid":  "{$msg:workerid}",
-                     "userduration": "{$userduration}",
-                     "systemduration": "{$systemduration}",
-                     "stagename": "{$msg:stagename}",
-                     "comment":  "{$msg:COMMENT}"  }
+    insertValues = {"runid": "{$msg:runId}",
+                    "name": blockName,
+                    "sliceid": "{$msg:sliceId}",
+                    "duration": "{$duration}",
+                    "hostid": "{$msg:hostId}",
+                    "loopnum": "{$msg[0]:loopnum}",
+                    "pipeline": "{$msg:pipeline}",
+                    "date": "{$startdate}",
+                    "stageid": "{$msg[0]:stageId}",
+                    "workerid": "{$msg:workerid}",
+                    "userduration": "{$userduration}",
+                    "systemduration": "{$systemduration}",
+                    "stagename": "{$msg:stagename}",
+                    "comment": "{$msg:COMMENT}"}
 
     if console == True:
         eventTask2 = consoleTask()
@@ -348,19 +355,19 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
                            Relation.EQUALS, "harness.pipeline.visit")
     cond2 = LogicalCompare("$msg:STATUS", Relation.EQUALS, "start")
     recmatch = LogicalAnd(cond1, cond2)
-    chain.addLink(Condition(recmatch));
+    chain.addLink(Condition(recmatch))
 
     chain.addLink(SetTask("$loopnum", "$msg:loopnum"))
     #chain.addLink(SetTask("$nextloop", "$msg:loopnum + 1"))
 
     # Next log records:  the next loop (same log message)
     cond2a = LogicalCompare("$msg:STATUS", Relation.EQUALS, "end")
-    cond2b = LogicalCompare("$msg:pipeline",Relation.EQUALS,"$msg[0]:pipeline")
-    cond3 = LogicalCompare("$msg:workerid",Relation.EQUALS,"$msg[0]:workerid")
+    cond2b = LogicalCompare("$msg:pipeline", Relation.EQUALS, "$msg[0]:pipeline")
+    cond3 = LogicalCompare("$msg:workerid", Relation.EQUALS, "$msg[0]:workerid")
     recmatch = LogicalAnd(cond1, cond2a)
     recmatch.add(cond2b)
     recmatch.add(cond3)
-    chain.addLink(Condition(recmatch));
+    chain.addLink(Condition(recmatch))
 
     chain.addLink(SetTask("$startdate", "$msg[0]:DATE"))
     chain.addLink(SetTask("$duration", "$msg[1]:PUBTIME-$msg[0]:PUBTIME"))
@@ -370,20 +377,20 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
     chain.addLink(SetTask("$systemduration", "$systemduration*1000.0"))
 
     # write to the durations table
-    insertValues = { "runid":    "{$msg:runId}",
-                     "name":     "{$msg:LOG}",
-                     "sliceid":  "{$msg:sliceId}",
-                     "duration": "{$duration}", 
-                     "hostid":   "{$msg:hostId}", 
-                     "loopnum":  "{$loopnum}", 
-                     "pipeline": "{$msg:pipeline}", 
-                     "date":     "{$startdate}",
-                     "stageid":  "{$msg:stageId}",
-                     "workerid":  "{$msg:workerid}",
-                     "userduration": "{$userduration}",
-                     "systemduration": "{$systemduration}",
-                     "stagename": "{$msg:stagename}",
-                     "comment":  "{$msg:COMMENT}"   }
+    insertValues = {"runid": "{$msg:runId}",
+                    "name": "{$msg:LOG}",
+                    "sliceid": "{$msg:sliceId}",
+                    "duration": "{$duration}",
+                    "hostid": "{$msg:hostId}",
+                    "loopnum": "{$loopnum}",
+                    "pipeline": "{$msg:pipeline}",
+                    "date": "{$startdate}",
+                    "stageid": "{$msg:stageId}",
+                    "workerid": "{$msg:workerid}",
+                    "userduration": "{$userduration}",
+                    "systemduration": "{$systemduration}",
+                    "stagename": "{$msg:stagename}",
+                    "comment": "{$msg:COMMENT}"}
 
     if console == True:
         eventTask2 = consoleTask()
@@ -392,6 +399,7 @@ def LoopDurationChain(runid, authinfo, dbname, durtable, console):
         chain.addLink(DBWriteTask(insertValues, authinfo, dbname, durtable))
 
     return chain
+
 
 def consoleTask():
 
